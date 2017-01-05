@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="paka.cmark",
-    version="1.6.1",
+    version="1.6.2",
     packages=setuptools.find_packages(),
     setup_requires=["cffi>=1.0.0"],
     install_requires=["cffi>=1.0.0"],
