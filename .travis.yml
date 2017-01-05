@@ -5,3 +5,9 @@ env:
 python: 3.5
 script: tox -e $TOX_ENV
 install: pip install tox
+addons:
+    apt:
+        packages:
+            packages:
+                - python-dev
+                - python3-dev
