@@ -1,0 +1,5 @@
+[run]
+source = paka/
+omit =
+    paka/__init__.py
+    paka/cmark/build_cmark.py
