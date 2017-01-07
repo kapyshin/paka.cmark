@@ -2,6 +2,7 @@ language: python
 env:
     - TOX_ENV=py27
     - TOX_ENV=py35
+    - TOX_ENV=pypy
 python: 3.5
 script: tox -e $TOX_ENV
 install: pip install tox
@@ -10,3 +11,4 @@ addons:
         packages:
             - python-dev
             - python3-dev
+            - pypy-dev
