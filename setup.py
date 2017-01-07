@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="paka.cmark",
-    version="1.6.3",
+    version="1.6.4",
     packages=setuptools.find_packages(),
     setup_requires=["cffi>=1.0.0"],
     install_requires=["cffi>=1.0.0"],
@@ -20,7 +20,9 @@ setuptools.setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5"],
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy"],
     license="BSD",
     author="Pavlo Kapyshin",
     author_email="i@93z.org")
