@@ -3,6 +3,9 @@ import setuptools
 
 setuptools.setup(
     name="paka.cmark",
+    description=(
+        "Very lightweight CFFI-based Python bindings to cmark library"
+        " (CommonMark implementation in C)."),
     version="1.7.0",
     packages=setuptools.find_packages(),
     setup_requires=["cffi>=1.0.0"],
@@ -25,5 +28,4 @@ setuptools.setup(
         "Programming Language :: Python :: Implementation :: PyPy"],
     license="BSD",
     author="Pavlo Kapyshin",
-    author_email="i@93z.org",
-    description="Very lightweight Python bindings for cmark (CommonMark implementation in C).")
+    author_email="i@93z.org")
