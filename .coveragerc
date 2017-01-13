@@ -1,4 +1,5 @@
 [run]
+branch = True
 source = paka/
 omit =
     paka/__init__.py
