@@ -10,6 +10,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     setup_requires=["cffi>=1.0.0"],
     install_requires=["cffi>=1.0.0"],
+    extras_require={"testing": []},
     cffi_modules=["paka/cmark/build_cmark.py:ffibuilder"],
     include_package_data=True,
     namespace_packages=["paka"],
