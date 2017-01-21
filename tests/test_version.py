@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import unittest
 
 
@@ -13,4 +15,4 @@ class VersionTest(unittest.TestCase):
         self.assertIsInstance(result, str)
 
     def test_version_is_correct(self):
-        self.assertEqual(self.func(), "0.27.1")
+        self.assertEqual(self.func(), str("0.27.1"))
