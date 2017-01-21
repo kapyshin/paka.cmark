@@ -47,6 +47,7 @@ def _get_sources(exclude):
 
 ffibuilder = FFI()
 ffibuilder.cdef("""
+#define CMARK_OPT_DEFAULT ...
 #define CMARK_OPT_NOBREAKS ...
 
 const char *cmark_version_string();

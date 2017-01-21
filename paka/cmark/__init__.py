@@ -13,10 +13,12 @@ def get_version():
     return result.decode("ascii")
 
 
-def to_html(text):
+def to_html(text, breaks=False):
     encoding = "utf-8"
     text_bytes = text.encode(encoding)
-    opts = lib.CMARK_OPT_NOBREAKS
+    opts = lib.CMARK_OPT_DEFAULT
+    if not breaks:
+        opts |= lib.CMARK_OPT_NOBREAKS
     return ffi.string(
         lib.cmark_markdown_to_html(
             text_bytes, len(text_bytes), opts)).decode(encoding)
