@@ -40,3 +40,21 @@ class ToHTMLTest(unittest.TestCase):
                 "<p>Вставляем <code>код</code>.\nИ другие штуки.</p>\n"
                 "<p>Test of <em>HTML</em>.</p>\n"),
             breaks=True)
+
+    def test_safe(self):
+        self.check(
+            self.SAMPLE,
+            (
+                "<p>Проверяем <em>CommonMark</em>.</p>\n"
+                "<p>Вставляем <code>код</code>. И другие штуки.</p>\n"
+                "<!-- raw HTML omitted -->\n"),
+            safe=True)
+
+    def test_breaks_and_safe(self):
+        self.check(
+            self.SAMPLE,
+            (
+                "<p>Проверяем <em>CommonMark</em>.</p>\n"
+                "<p>Вставляем <code>код</code>.\nИ другие штуки.</p>\n"
+                "<!-- raw HTML omitted -->\n"),
+            breaks=True, safe=True)
