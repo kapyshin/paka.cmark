@@ -1,3 +1,2 @@
-include README.rst
 include LICENSE
 recursive-include paka/cmark/cmark_src *.c *.h *.inc LICENSE

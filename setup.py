@@ -1,4 +1,13 @@
+import os
+
 import setuptools
+
+
+def _get_long_description():
+    path = os.path.join(os.path.dirname(__file__), "README.rst")
+    with open(path, "rb") as file:
+        contents = file.read()
+    return contents.decode("utf-8")
 
 
 setuptools.setup(
@@ -6,7 +15,8 @@ setuptools.setup(
     description=(
         "Very lightweight CFFI-based Python bindings to cmark library"
         " (CommonMark implementation in C)."),
-    version="1.9.0",
+    long_description=_get_long_description(),
+    version="1.9.1",
     packages=setuptools.find_packages(),
     setup_requires=["cffi>=1.0.0"],
     install_requires=["cffi>=1.0.0"],
