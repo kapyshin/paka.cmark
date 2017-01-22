@@ -6,7 +6,9 @@ import unittest
 
 
 class ToHTMLTest(unittest.TestCase):
-    SAMPLE = "Проверяем *CommonMark*.\n\nВставляем `код`.\nИ другие штуки."
+    SAMPLE = (
+        "Проверяем *CommonMark*.\n\nВставляем `код`.\nИ другие штуки.\n\n"
+        "<p>Test of <em>HTML</em>.</p>")
 
     def setUp(self):
         from paka.cmark import to_html
@@ -27,12 +29,14 @@ class ToHTMLTest(unittest.TestCase):
             self.SAMPLE,
             (
                 "<p>Проверяем <em>CommonMark</em>.</p>\n"
-                "<p>Вставляем <code>код</code>. И другие штуки.</p>\n"))
+                "<p>Вставляем <code>код</code>. И другие штуки.</p>\n"
+                "<p>Test of <em>HTML</em>.</p>\n"))
 
     def test_breaks(self):
         self.check(
             self.SAMPLE,
             (
                 "<p>Проверяем <em>CommonMark</em>.</p>\n"
-                "<p>Вставляем <code>код</code>.\nИ другие штуки.</p>\n"),
+                "<p>Вставляем <code>код</code>.\nИ другие штуки.</p>\n"
+                "<p>Test of <em>HTML</em>.</p>\n"),
             breaks=True)
