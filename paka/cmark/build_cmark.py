@@ -15,7 +15,6 @@ ROOT_DIR = os.path.normpath(os.path.join(CURRENT_PACKAGE_DIR, "../../"))
 CMARK_SRC_DIR_NAME = "cmark_src"
 
 # Absolute path of cmark "C sources" dir.
-# TODO: look at pkg_resources in addition to this silliness.
 CMARK_SRC_DIR_PATH = os.path.join(CURRENT_PACKAGE_DIR, CMARK_SRC_DIR_NAME)
 
 # Contents of cmark.h.
