@@ -41,6 +41,9 @@ Render with ``CMARK_OPT_DEFAULT``:
 
 Installation
 ------------
+Library is `available on PyPI <https://pypi.python.org/pypi/paka.cmark>`_,
+you can use ``pip`` for installation:
+
 .. code-block:: console
 
     $ pip install paka.cmark
