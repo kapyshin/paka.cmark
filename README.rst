@@ -38,6 +38,14 @@ Render with ``CMARK_OPT_DEFAULT``:
     <p>Hello,
     <em>World</em>!</p>
 
+Render with ``CMARK_OPT_DEFAULT | CMARK_OPT_HARDBREAKS``:
+
+.. code-block:: pycon
+
+    >>> print(cmark.to_html("Hello,\n*World*!", breaks="hard"))
+    <p>Hello,<br />
+    <em>World</em>!</p>
+
 
 Installation
 ------------
