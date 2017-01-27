@@ -20,21 +20,21 @@ Render with ``CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS`` (unlike ``cmark``,
 
 .. code-block:: pycon
 
-    >>> print(cmark.to_html("Hello,\n*World*!"))
+    >>> print(cmark.to_html(u"Hello,\n*World*!"))
     <p>Hello, <em>World</em>!</p>
 
 Render with ``CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS | CMARK_OPT_SAFE``:
 
 .. code-block:: pycon
 
-    >>> print(cmark.to_html("<p>nope</p>", safe=True))
+    >>> print(cmark.to_html(u"<p>nope</p>", safe=True))
     <!-- raw HTML omitted -->
 
 Render with ``CMARK_OPT_DEFAULT``:
 
 .. code-block:: pycon
 
-    >>> print(cmark.to_html("Hello,\n*World*!", breaks=True))
+    >>> print(cmark.to_html(u"Hello,\n*World*!", breaks=True))
     <p>Hello,
     <em>World</em>!</p>
 
@@ -42,7 +42,7 @@ Render with ``CMARK_OPT_DEFAULT | CMARK_OPT_HARDBREAKS``:
 
 .. code-block:: pycon
 
-    >>> print(cmark.to_html("Hello,\n*World*!", breaks="hard"))
+    >>> print(cmark.to_html(u"Hello,\n*World*!", breaks="hard"))
     <p>Hello,<br />
     <em>World</em>!</p>
 
