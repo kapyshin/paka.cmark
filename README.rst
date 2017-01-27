@@ -3,10 +3,17 @@ paka.cmark
 .. image:: https://travis-ci.org/PavloKapyshin/paka.cmark.svg?branch=master
     :target: https://travis-ci.org/PavloKapyshin/paka.cmark
 
-``paka.cmark`` is a Python library that wraps subset of cmark_ C library.
-Wrapping is made with CFFI_, so PyPy is supported in addition to CPython.
-Currently only HTML output and limited number of ``cmark``’s options are
-supported (``CMARK_OPT_SAFE`` and ``CMARK_OPT_NOBREAKS``).
+``paka.cmark`` is a Python library that wraps subset of cmark_ C library
+(that is one of reference implementations of CommonMark).
+
+
+Features
+--------
+- Python 2.7 and 3.5 are supported
+- PyPy (Python 2.7) is supported, as wrapping is made with CFFI_
+- currently only HTML output and limited number of ``cmark``’s options
+  are supported (``CMARK_OPT_SAFE``, ``CMARK_OPT_NOBREAKS``,
+  ``CMARK_OPT_HARDBREAKS``)
 
 
 Examples
