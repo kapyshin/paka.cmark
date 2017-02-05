@@ -1,0 +1,4 @@
+API
+===
+
+.. automodule:: paka.cmark

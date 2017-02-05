@@ -86,5 +86,20 @@ View HTML report:
     $ sensible-browser .tox/coverage/tmp/cov_html/index.html
 
 
+Getting documentation
+---------------------
+Build HTML docs:
+
+.. code-block:: console
+
+    $ tox -e docs
+
+View built docs:
+
+.. code-block:: console
+
+    $ sensible-browser .tox/docs/tmp/docs_html/index.html
+
+
 .. _cmark: https://github.com/jgm/cmark
 .. _CFFI: https://pypi.python.org/pypi/cffi

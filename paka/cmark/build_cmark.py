@@ -1,3 +1,5 @@
+"""CFFI-based bindings to cmark."""
+
 import os
 import glob
 import functools
@@ -23,7 +25,8 @@ with open(os.path.join(CMARK_SRC_DIR_PATH, "cmark.h"), "rb") as file:
 CMARK_HEADER = CMARK_HEADER.encode("ascii", "replace").decode("ascii")
 
 
-_relativize = functools.partial(os.path.relpath, start=ROOT_DIR)
+_relativize = functools.partial(  # pylint: disable=invalid-name
+    os.path.relpath, start=ROOT_DIR)
 
 
 def _relativize_paths(paths):
@@ -43,7 +46,7 @@ def _get_sources(exclude):
     return _relativize_paths(sorted(_get_sources_paths()))
 
 
-ffibuilder = FFI()
+ffibuilder = FFI()  # pylint: disable=invalid-name
 ffibuilder.cdef("""
 #define CMARK_OPT_DEFAULT ...
 #define CMARK_OPT_NOBREAKS ...

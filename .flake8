@@ -1,0 +1,3 @@
+[flake8]
+hang_closing = True
+count = True
