@@ -24,20 +24,19 @@ CMARK_HEADER = CMARK_HEADER.encode("ascii", "replace").decode("ascii")
 
 
 _relativize = functools.partial(os.path.relpath, start=ROOT_DIR)
-_relativize_paths = lambda paths: list(map(_relativize, paths))
 
 
-try:
-    _glob_escape = glob.escape
-except AttributeError:
-    _glob_escape = lambda s: s
+def _relativize_paths(paths):
+    return list(map(_relativize, paths))
 
 
 def _get_sources(exclude):
     exclude = set(exclude)
+    glob_escape = getattr(glob, "escape", lambda s: s)
+
     def _get_sources_paths():
         for path in glob.iglob(
-                os.path.join(_glob_escape(CMARK_SRC_DIR_PATH), "*.c")):
+                os.path.join(glob_escape(CMARK_SRC_DIR_PATH), "*.c")):
             filename = os.path.basename(path)
             if filename not in exclude:
                 yield path
