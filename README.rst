@@ -86,6 +86,15 @@ View HTML report:
     $ sensible-browser .tox/coverage/tmp/cov_html/index.html
 
 
+Checking code style
+-------------------
+Run code checkers:
+
+.. code-block:: console
+
+    $ tox -e checks
+
+
 Getting documentation
 ---------------------
 Build HTML docs:
