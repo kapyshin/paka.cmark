@@ -6,5 +6,5 @@ __pycache__/
 .coverage
 .tox/
 .eggs/
-build/
-dist/
+/build/
+/dist/
