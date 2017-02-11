@@ -11,6 +11,8 @@ Features
 --------
 - Python 2.7 and 3.5 are supported
 - PyPy (Python 2.7) is supported, as wrapping is made with CFFI_
+- no need to install ``libcmark``, it is bundled with ``paka.cmark``
+  (and sources of the former are regularly updated according to upstream)
 - currently only HTML output and limited number of ``cmark``’s options
   are supported (``CMARK_OPT_SAFE``, ``CMARK_OPT_NOBREAKS``,
   ``CMARK_OPT_HARDBREAKS``)
