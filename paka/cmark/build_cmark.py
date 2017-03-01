@@ -56,10 +56,21 @@ ffibuilder.cdef("""
 const char *cmark_version_string();
 
 char *cmark_markdown_to_html(const char *text, size_t len, int options);
+char *cmark_markdown_to_commonmark(const char *text, size_t len, int options, int width);
 """)
+
+additional_code = """
+char *cmark_markdown_to_commonmark(const char *text, size_t len, int options, int width) {
+    cmark_node *doc = cmark_parse_document(text, len, options);
+    char *result = cmark_render_commonmark(doc, options, width);
+    cmark_node_free(doc);
+    return result;
+}
+"""
+
 ffibuilder.set_source(
     "paka.cmark._cmark",
-    CMARK_HEADER,
+    '\n'.join([CMARK_HEADER, additional_code]),
     sources=_get_sources(exclude=["main.c"]),
     include_dirs=_relativize_paths([CMARK_SRC_DIR_PATH]))
 

@@ -70,3 +70,25 @@ def to_html(text, breaks=False, safe=False):
     return ffi.string(
         lib.cmark_markdown_to_html(
             text_bytes, len(text_bytes), opts)).decode(encoding)
+
+
+def to_commonmark(text, width=0):
+    r"""Convert markup to CommonMark.
+
+    Parameters
+    ----------
+    text: str
+        Text marked up with `CommonMark <http://commonmark.org>`_.
+    width: `int`
+        Wrap width of output (default 0 = nowrap).
+
+    Returns
+    -------
+    str
+        CommonMark
+    """
+    encoding = "utf-8"
+    text_bytes = text.encode(encoding)
+    return ffi.string(
+        lib.cmark_markdown_to_commonmark(
+            text_bytes, len(text_bytes), lib.CMARK_OPT_DEFAULT, width)).decode(encoding)
