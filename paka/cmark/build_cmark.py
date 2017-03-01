@@ -53,10 +53,19 @@ ffibuilder.cdef("""
 #define CMARK_OPT_HARDBREAKS ...
 #define CMARK_OPT_SAFE ...
 
+typedef struct cmark_node cmark_node;
+
 const char *cmark_version_string();
 
 char *cmark_markdown_to_html(const char *text, size_t len, int options);
+
+cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
+void cmark_node_free(cmark_node *node);
+
+char *cmark_render_commonmark(cmark_node *root, int options, int width);
 """)
+
+
 ffibuilder.set_source(
     "paka.cmark._cmark",
     CMARK_HEADER,

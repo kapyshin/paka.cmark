@@ -10,6 +10,7 @@ from paka.cmark._cmark import ffi, lib
 
 
 _PY2 = sys.version_info.major == 2
+_ENCODING = "utf-8"
 
 
 class LineBreaks(object):  # pylint: disable=too-few-public-methods
@@ -57,8 +58,7 @@ def to_html(text, breaks=False, safe=False):
     str
         HTML
     """
-    encoding = "utf-8"
-    text_bytes = text.encode(encoding)
+    text_bytes = text.encode(_ENCODING)
     opts = lib.CMARK_OPT_DEFAULT
     if breaks:
         if breaks == "hard":
@@ -69,4 +69,27 @@ def to_html(text, breaks=False, safe=False):
         opts |= lib.CMARK_OPT_SAFE
     return ffi.string(
         lib.cmark_markdown_to_html(
-            text_bytes, len(text_bytes), opts)).decode(encoding)
+            text_bytes, len(text_bytes), opts)).decode(_ENCODING)
+
+
+def to_commonmark(text, width=0):
+    """Convert markup to CommonMark.
+
+    Parameters
+    ----------
+    text: str
+        Text marked up with `CommonMark <http://commonmark.org>`_.
+    width: int
+        Wrap width of output (default is ``0``—no wrapping).
+
+    Returns
+    -------
+    str
+        CommonMark
+    """
+    opts = lib.CMARK_OPT_DEFAULT
+    text_bytes = text.encode(_ENCODING)
+    parsed = lib.cmark_parse_document(text_bytes, len(text_bytes), opts)
+    root = ffi.gc(parsed, lib.cmark_node_free)
+    rendered = lib.cmark_render_commonmark(root, opts, width)
+    return ffi.string(rendered).decode(_ENCODING)
