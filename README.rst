@@ -16,6 +16,9 @@ Features
 - currently only HTML & CommonMark output and limited number of ``cmark``’s
   options are supported (``CMARK_OPT_SAFE``, ``CMARK_OPT_NOBREAKS``,
   ``CMARK_OPT_HARDBREAKS``)
+- unlike ``libcmark``—underlying C library—``paka.cmark`` uses
+  ``CMARK_OPT_NOBREAKS`` by default (``breaks`` argument allows to control
+  line break rendering)
 
 
 Examples
@@ -24,8 +27,7 @@ Examples
 
     >>> from paka import cmark
 
-Render with ``CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS`` (unlike ``cmark``,
-``paka.cmark`` uses ``CMARK_OPT_NOBREAKS`` by default):
+Render with ``CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS``:
 
 .. code-block:: pycon
 
@@ -55,7 +57,7 @@ Render with ``CMARK_OPT_DEFAULT | CMARK_OPT_HARDBREAKS``:
     <p>Hello,<br />
     <em>World</em>!</p>
 
-Render CommonMark:
+Render CommonMark with ``CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS``:
 
 .. code-block:: pycon
 
