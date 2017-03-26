@@ -23,6 +23,15 @@ class LineBreaks(object):  # pylint: disable=too-few-public-methods
     r"""As ``<br />``\ s."""
 
 
+def _add_breaks_to_opts(breaks, opts):
+    if breaks:
+        if breaks == "hard":
+            opts |= lib.CMARK_OPT_HARDBREAKS
+    else:
+        opts |= lib.CMARK_OPT_NOBREAKS
+    return opts
+
+
 def get_version():
     """Return version of underlying C library.
 
@@ -59,12 +68,7 @@ def to_html(text, breaks=False, safe=False):
         HTML
     """
     text_bytes = text.encode(_ENCODING)
-    opts = lib.CMARK_OPT_DEFAULT
-    if breaks:
-        if breaks == "hard":
-            opts |= lib.CMARK_OPT_HARDBREAKS
-    else:
-        opts |= lib.CMARK_OPT_NOBREAKS
+    opts = _add_breaks_to_opts(breaks, lib.CMARK_OPT_DEFAULT)
     if safe:
         opts |= lib.CMARK_OPT_SAFE
     return ffi.string(
@@ -72,22 +76,30 @@ def to_html(text, breaks=False, safe=False):
             text_bytes, len(text_bytes), opts)).decode(_ENCODING)
 
 
-def to_commonmark(text, width=0):
-    """Convert markup to CommonMark.
+def to_commonmark(text, breaks=False, width=0):
+    r"""Convert markup to CommonMark.
 
     Parameters
     ----------
     text: str
         Text marked up with `CommonMark <http://commonmark.org>`_.
+    breaks: bool or LineBreaks
+        How line breaks will be rendered. If ``True``,
+        ``"soft"``, or :py:attr:`LineBreaks.soft` -- as newlines
+        (``\n``). If ``False`` -- as spaces. If ``"hard"`` or
+        :py:attr:`LineBreaks.hard` -- “soft break nodes” (single
+        newlines) are rendered as two spaces and ``\n``.
     width: int
-        Wrap width of output (default is ``0``—no wrapping).
+        Wrap width of output by inserting line breaks (default is
+        ``0``—no wrapping). Has no effect if ``breaks`` are set to be
+        ``"hard"`` (e.g. with :py:attr:`LineBreaks.hard`).
 
     Returns
     -------
     str
         CommonMark
     """
-    opts = lib.CMARK_OPT_DEFAULT
+    opts = _add_breaks_to_opts(breaks, lib.CMARK_OPT_DEFAULT)
     text_bytes = text.encode(_ENCODING)
     parsed = lib.cmark_parse_document(text_bytes, len(text_bytes), opts)
     root = ffi.gc(parsed, lib.cmark_node_free)
