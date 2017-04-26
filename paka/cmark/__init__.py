@@ -39,6 +39,7 @@ def get_version():
     -------
     str
         Version as X.Y.Z.
+
     """
     result = ffi.string(lib.cmark_version_string())
     if _PY2:  # pragma: no cover
@@ -66,6 +67,7 @@ def to_html(text, breaks=False, safe=False):
     -------
     str
         HTML
+
     """
     text_bytes = text.encode(_ENCODING)
     opts = _add_breaks_to_opts(breaks, lib.CMARK_OPT_DEFAULT)
@@ -98,6 +100,7 @@ def to_commonmark(text, breaks=False, width=0):
     -------
     str
         CommonMark
+
     """
     opts = _add_breaks_to_opts(breaks, lib.CMARK_OPT_DEFAULT)
     text_bytes = text.encode(_ENCODING)
