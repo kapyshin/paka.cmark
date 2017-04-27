@@ -63,6 +63,7 @@ cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
 void cmark_node_free(cmark_node *node);
 
 char *cmark_render_commonmark(cmark_node *root, int options, int width);
+char *cmark_render_xml(cmark_node *root, int options);
 """)
 
 
