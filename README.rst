@@ -13,9 +13,9 @@ Features
 - PyPy (Python 2.7) is supported, as wrapping is made with CFFI_
 - no need to install ``libcmark``, it is bundled with ``paka.cmark``
   (and sources of the former are regularly updated according to upstream)
-- currently only HTML & CommonMark output and limited number of ``cmark``’s
-  options are supported (``CMARK_OPT_SAFE``, ``CMARK_OPT_NOBREAKS``,
-  ``CMARK_OPT_HARDBREAKS``)
+- supported output: HTML, XML, CommonMark
+- supported options: ``CMARK_OPT_SAFE``, ``CMARK_OPT_NOBREAKS``,
+  ``CMARK_OPT_HARDBREAKS``
 - unlike ``libcmark``—underlying C library—``paka.cmark`` uses
   ``CMARK_OPT_NOBREAKS`` by default (``breaks`` argument allows to control
   line break rendering)
