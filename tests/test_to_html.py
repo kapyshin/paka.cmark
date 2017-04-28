@@ -7,7 +7,8 @@ import unittest
 
 class ToHTMLTest(unittest.TestCase):
     SAMPLE = (
-        "Проверяем *CommonMark*.\n\nВставляем `код`.\nИ другие штуки.\n\n"
+        "Проверяем *CommonMark*.\n\nВставляем `код`.\nИ "
+        "[другие](https://example.org) [штуки](javascript:pwnd).\n\n"
         "<p>Test of <em>HTML</em>.</p>")
 
     def setUp(self):
@@ -28,7 +29,9 @@ class ToHTMLTest(unittest.TestCase):
     def test_no_breaks(self):
         expected = (
             "<p>Проверяем <em>CommonMark</em>.</p>\n"
-            "<p>Вставляем <code>код</code>. И другие штуки.</p>\n"
+            "<p>Вставляем <code>код</code>. И "
+            "<a href=\"https://example.org\">другие</a> "
+            "<a href=\"javascript:pwnd\">штуки</a>.</p>\n"
             "<p>Test of <em>HTML</em>.</p>\n")
         self.check(self.SAMPLE, expected)
         self.check(self.SAMPLE, expected, breaks=False)
@@ -36,7 +39,9 @@ class ToHTMLTest(unittest.TestCase):
     def test_soft_breaks(self):
         expected = (
             "<p>Проверяем <em>CommonMark</em>.</p>\n"
-            "<p>Вставляем <code>код</code>.\nИ другие штуки.</p>\n"
+            "<p>Вставляем <code>код</code>.\nИ "
+            "<a href=\"https://example.org\">другие</a> "
+            "<a href=\"javascript:pwnd\">штуки</a>.</p>\n"
             "<p>Test of <em>HTML</em>.</p>\n")
         self.check(self.SAMPLE, expected, breaks=True)
         self.check(self.SAMPLE, expected, breaks=self.line_breaks.soft)
@@ -45,7 +50,9 @@ class ToHTMLTest(unittest.TestCase):
     def test_hard_breaks(self):
         expected = (
             "<p>Проверяем <em>CommonMark</em>.</p>\n"
-            "<p>Вставляем <code>код</code>.<br />\nИ другие штуки.</p>\n"
+            "<p>Вставляем <code>код</code>.<br />\nИ "
+            "<a href=\"https://example.org\">другие</a> "
+            "<a href=\"javascript:pwnd\">штуки</a>.</p>\n"
             "<p>Test of <em>HTML</em>.</p>\n")
         self.check(self.SAMPLE, expected, breaks=self.line_breaks.hard)
         self.check(self.SAMPLE, expected, breaks="hard")
@@ -53,7 +60,9 @@ class ToHTMLTest(unittest.TestCase):
     def test_no_breaks_and_safe(self):
         expected = (
             "<p>Проверяем <em>CommonMark</em>.</p>\n"
-            "<p>Вставляем <code>код</code>. И другие штуки.</p>\n"
+            "<p>Вставляем <code>код</code>. И "
+            "<a href=\"https://example.org\">другие</a> "
+            "<a href=\"\">штуки</a>.</p>\n"
             "<!-- raw HTML omitted -->\n")
         self.check(self.SAMPLE, expected, safe=True)
         self.check(self.SAMPLE, expected, breaks=False, safe=True)
@@ -61,7 +70,9 @@ class ToHTMLTest(unittest.TestCase):
     def test_soft_breaks_and_safe(self):
         expected = (
             "<p>Проверяем <em>CommonMark</em>.</p>\n"
-            "<p>Вставляем <code>код</code>.\nИ другие штуки.</p>\n"
+            "<p>Вставляем <code>код</code>.\nИ "
+            "<a href=\"https://example.org\">другие</a> "
+            "<a href=\"\">штуки</a>.</p>\n"
             "<!-- raw HTML omitted -->\n")
         self.check(self.SAMPLE, expected, breaks=True, safe=True)
         self.check(
@@ -71,7 +82,9 @@ class ToHTMLTest(unittest.TestCase):
     def test_hard_breaks_and_safe(self):
         expected = (
             "<p>Проверяем <em>CommonMark</em>.</p>\n"
-            "<p>Вставляем <code>код</code>.<br />\nИ другие штуки.</p>\n"
+            "<p>Вставляем <code>код</code>.<br />\nИ "
+            "<a href=\"https://example.org\">другие</a> "
+            "<a href=\"\">штуки</a>.</p>\n"
             "<!-- raw HTML omitted -->\n")
         self.check(
             self.SAMPLE, expected, breaks=self.line_breaks.hard, safe=True)
