@@ -78,13 +78,16 @@ def to_html(text, breaks=False, safe=False):
             text_bytes, len(text_bytes), opts)).decode(_ENCODING)
 
 
-def to_xml(text):
+def to_xml(text, sourcepos=False):
     """Convert markup to XML.
 
     Parameters
     ----------
     text: str
         Text marked up with `CommonMark <http://commonmark.org>`_.
+    sourcepos: bool
+        If ``True``, add ``sourcepos`` attribute to all block elements
+        (that is, use ``CMARK_OPT_SOURCEPOS``).
 
     Returns
     -------
@@ -93,6 +96,8 @@ def to_xml(text):
 
     """
     opts = lib.CMARK_OPT_DEFAULT
+    if sourcepos:
+        opts |= lib.CMARK_OPT_SOURCEPOS
     text_bytes = text.encode(_ENCODING)
     parsed = lib.cmark_parse_document(text_bytes, len(text_bytes), opts)
     root = ffi.gc(parsed, lib.cmark_node_free)
