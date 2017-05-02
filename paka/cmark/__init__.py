@@ -32,6 +32,12 @@ def _add_breaks_to_opts(breaks, opts):
     return opts
 
 
+def _add_sourcepos_to_opts(sourcepos, opts):
+    if sourcepos:
+        opts |= lib.CMARK_OPT_SOURCEPOS
+    return opts
+
+
 def get_version():
     """Return version of underlying C library.
 
@@ -47,7 +53,7 @@ def get_version():
     return result.decode("ascii")
 
 
-def to_html(text, breaks=False, safe=False):
+def to_html(text, breaks=False, safe=False, sourcepos=False):
     r"""Convert markup to HTML.
 
     Parameters
@@ -62,6 +68,9 @@ def to_html(text, breaks=False, safe=False):
     safe: bool
         If ``True``, replace raw HTML (that was present in ``text``)
         with HTML comment.
+    sourcepos: bool
+        If ``True``, add ``data-sourcepos`` attribute to block elements
+        (that is, use ``CMARK_OPT_SOURCEPOS``).
 
     Returns
     -------
@@ -70,7 +79,8 @@ def to_html(text, breaks=False, safe=False):
 
     """
     text_bytes = text.encode(_ENCODING)
-    opts = _add_breaks_to_opts(breaks, lib.CMARK_OPT_DEFAULT)
+    opts = _add_sourcepos_to_opts(
+        sourcepos, _add_breaks_to_opts(breaks, lib.CMARK_OPT_DEFAULT))
     if safe:
         opts |= lib.CMARK_OPT_SAFE
     return ffi.string(
@@ -95,9 +105,7 @@ def to_xml(text, sourcepos=False):
         XML
 
     """
-    opts = lib.CMARK_OPT_DEFAULT
-    if sourcepos:
-        opts |= lib.CMARK_OPT_SOURCEPOS
+    opts = _add_sourcepos_to_opts(sourcepos, lib.CMARK_OPT_DEFAULT)
     text_bytes = text.encode(_ENCODING)
     parsed = lib.cmark_parse_document(text_bytes, len(text_bytes), opts)
     root = ffi.gc(parsed, lib.cmark_node_free)

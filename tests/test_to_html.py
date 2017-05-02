@@ -89,3 +89,13 @@ class ToHTMLTest(unittest.TestCase):
         self.check(
             self.SAMPLE, expected, breaks=self.line_breaks.hard, safe=True)
         self.check(self.SAMPLE, expected, breaks="hard", safe=True)
+
+    def test_no_breaks_and_sourcepos(self):
+        expected = (
+            "<p data-sourcepos=\"1:1-1:32\">Проверяем <em>CommonMark"
+            "</em>.</p>\n<p data-sourcepos=\"3:1-4:69\">Вставляем "
+            "<code>код</code>. И <a href=\"https://example.org\">другие</a> "
+            "<a href=\"javascript:pwnd\">штуки</a>.</p>\n"
+            "<p>Test of <em>HTML</em>.</p>\n")
+        self.check(self.SAMPLE, expected, sourcepos=True)
+        self.check(self.SAMPLE, expected, breaks=False, sourcepos=True)
