@@ -143,3 +143,34 @@ def to_commonmark(text, breaks=False, width=0):
     root = ffi.gc(parsed, lib.cmark_node_free)
     rendered = lib.cmark_render_commonmark(root, opts, width)
     return ffi.string(rendered).decode(_ENCODING)
+
+
+def to_man(text, breaks=False, width=0):
+    r"""Convert markup to groff man page.
+
+    Parameters
+    ----------
+    text: str
+        Text marked up with `CommonMark <http://commonmark.org>`_.
+    breaks: bool or LineBreaks
+        How line breaks will be rendered. If ``True``,
+        ``"soft"``, or :py:attr:`LineBreaks.soft` -- as newlines
+        (``\n``). If ``False`` -- as spaces. If ``"hard"`` or
+        :py:attr:`LineBreaks.hard` -- “soft break nodes” (single
+        newlines) are rendered as ``.PD 0\n.P\n.PD\n``.
+    width: int
+        Wrap width of output by inserting line breaks (default is
+        ``0``—no wrapping). Has no effect if ``breaks`` are ``False``.
+
+    Returns
+    -------
+    str
+        Page without the header.
+
+    """
+    opts = _add_breaks_to_opts(breaks, lib.CMARK_OPT_DEFAULT)
+    text_bytes = text.encode(_ENCODING)
+    parsed = lib.cmark_parse_document(text_bytes, len(text_bytes), opts)
+    root = ffi.gc(parsed, lib.cmark_node_free)
+    rendered = lib.cmark_render_man(root, opts, width)
+    return ffi.string(rendered).decode(_ENCODING)
