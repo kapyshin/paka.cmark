@@ -66,6 +66,7 @@ void cmark_node_free(cmark_node *node);
 char *cmark_render_commonmark(cmark_node *root, int options, int width);
 char *cmark_render_xml(cmark_node *root, int options);
 char *cmark_render_man(cmark_node *root, int options, int width);
+char *cmark_render_latex(cmark_node *root, int options, int width);
 """)
 
 
