@@ -154,10 +154,11 @@ def to_man(text, breaks=False, width=0):
         Text marked up with `CommonMark <http://commonmark.org>`_.
     breaks: bool or LineBreaks
         How line breaks will be rendered. If ``True``,
-        ``"soft"``, or :py:attr:`LineBreaks.soft` -- as newlines
-        (``\n``). If ``False`` -- as spaces. If ``"hard"`` or
-        :py:attr:`LineBreaks.hard` -- “soft break nodes” (single
-        newlines) are rendered as ``.PD 0\n.P\n.PD\n``.
+        ``"soft"``, or :py:attr:`LineBreaks.soft` -- “soft break nodes”
+        (single newlines) are rendered as newlines (``\n``). If ``False``
+        -- “soft break nodes” are rendered as spaces. If ``"hard"`` or
+        :py:attr:`LineBreaks.hard` -- “soft break nodes” are rendered
+        as ``.PD 0\n.P\n.PD\n``.
     width: int
         Wrap width of output by inserting line breaks (default is
         ``0``—no wrapping). Has no effect if ``breaks`` are ``False``.
