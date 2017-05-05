@@ -4,7 +4,7 @@ paka.cmark
 .. toctree::
    :maxdepth: 2
 
-   api
+   highlevel
    lowlevel
 
 
