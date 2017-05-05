@@ -54,19 +54,77 @@ ffibuilder.cdef("""
 #define CMARK_OPT_SAFE ...
 #define CMARK_OPT_SOURCEPOS ...
 
+
 typedef struct cmark_node cmark_node;
+typedef enum {
+  /* Error status */
+  CMARK_NODE_NONE,
+
+  /* Block */
+  CMARK_NODE_DOCUMENT,
+  CMARK_NODE_BLOCK_QUOTE,
+  CMARK_NODE_LIST,
+  CMARK_NODE_ITEM,
+  CMARK_NODE_CODE_BLOCK,
+  CMARK_NODE_HTML_BLOCK,
+  CMARK_NODE_CUSTOM_BLOCK,
+  CMARK_NODE_PARAGRAPH,
+  CMARK_NODE_HEADING,
+  CMARK_NODE_THEMATIC_BREAK,
+
+  CMARK_NODE_FIRST_BLOCK = CMARK_NODE_DOCUMENT,
+  CMARK_NODE_LAST_BLOCK = CMARK_NODE_THEMATIC_BREAK,
+
+  /* Inline */
+  CMARK_NODE_TEXT,
+  CMARK_NODE_SOFTBREAK,
+  CMARK_NODE_LINEBREAK,
+  CMARK_NODE_CODE,
+  CMARK_NODE_HTML_INLINE,
+  CMARK_NODE_CUSTOM_INLINE,
+  CMARK_NODE_EMPH,
+  CMARK_NODE_STRONG,
+  CMARK_NODE_LINK,
+  CMARK_NODE_IMAGE,
+
+  CMARK_NODE_FIRST_INLINE = CMARK_NODE_TEXT,
+  CMARK_NODE_LAST_INLINE = CMARK_NODE_IMAGE,
+} cmark_node_type;
+
+typedef struct cmark_iter cmark_iter;
+typedef enum {
+  CMARK_EVENT_NONE,
+  CMARK_EVENT_DONE,
+  CMARK_EVENT_ENTER,
+  CMARK_EVENT_EXIT
+} cmark_event_type;
+
 
 const char *cmark_version_string();
 
 char *cmark_markdown_to_html(const char *text, size_t len, int options);
 
 cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
+cmark_node *cmark_node_new(cmark_node_type type);
 void cmark_node_free(cmark_node *node);
+
+int cmark_node_replace(cmark_node *oldnode, cmark_node *newnode);
+
+cmark_node_type cmark_node_get_type(cmark_node *node);
+const char *cmark_node_get_fence_info(cmark_node *node);
+const char *cmark_node_get_literal(cmark_node *node);
+int cmark_node_set_literal(cmark_node *node, const char *content);
 
 char *cmark_render_commonmark(cmark_node *root, int options, int width);
 char *cmark_render_xml(cmark_node *root, int options);
+char *cmark_render_html(cmark_node *root, int options);
 char *cmark_render_man(cmark_node *root, int options, int width);
 char *cmark_render_latex(cmark_node *root, int options, int width);
+
+cmark_iter *cmark_iter_new(cmark_node *root);
+void cmark_iter_free(cmark_iter *iter);
+cmark_event_type cmark_iter_next(cmark_iter *iter);
+cmark_node *cmark_iter_get_node(cmark_iter *iter);
 """)
 
 
