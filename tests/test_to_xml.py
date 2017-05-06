@@ -33,8 +33,7 @@ class ToXMLTest(unittest.TestCase):
             <!DOCTYPE document SYSTEM "CommonMark.dtd">
             <document xmlns="http://commonmark.org/xml/1.0">
               <paragraph>
-                <text>Hello, XML</text>
-                <text>!</text>
+                <text>Hello, XML!</text>
               </paragraph>
             </document>
             """)
