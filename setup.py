@@ -39,4 +39,5 @@ setuptools.setup(
         "Programming Language :: Python :: Implementation :: PyPy"],
     license="BSD",
     author="Pavlo Kapyshin",
-    author_email="i@93z.org")
+    author_email="i@93z.org",
+    description="Very lightweight Python bindings for cmark (CommonMark implementation in C).")
