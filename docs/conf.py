@@ -67,6 +67,7 @@ autodoc_default_flags = ['members', 'undoc-members']
 
 nitpick_ignore = [
     ('py:obj', 'str'),
+    ('py:obj', 'bytes'),
     ('py:obj', 'bool'),
     ('py:obj', 'int')]
 
