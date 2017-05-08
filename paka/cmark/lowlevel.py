@@ -195,6 +195,13 @@ def render_html(root, options):
         Use :py:func:`text_from_c` to convert value returned
         by this function into text.
 
+    Parameters
+    ----------
+    root
+        Root node.
+    options
+        See :ref:`options <options>`.
+
     """
     return _lib.cmark_render_html(root, options)
 
