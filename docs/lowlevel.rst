@@ -7,6 +7,8 @@ Low-level API
   :no-members:
   :no-undoc-members:
 
+.. autofunction:: version_string
+
 .. autofunction:: parse_document
 .. autofunction:: node_new
 .. autofunction:: node_free
@@ -33,13 +35,22 @@ Iteration event types
 
 Rendering
 ---------
+.. autofunction:: markdown_to_html
 .. autofunction:: render_html
+.. autofunction:: render_xml
+.. autofunction:: render_man
+.. autofunction:: render_commonmark
+.. autofunction:: render_latex
 
 .. _options:
 
 Options
 -------
 .. autodata:: OPT_DEFAULT
+.. autodata:: OPT_HARDBREAKS
+.. autodata:: OPT_NOBREAKS
+.. autodata:: OPT_SOURCEPOS
+.. autodata:: OPT_SAFE
 
 .. _node_types:
 

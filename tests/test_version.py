@@ -10,9 +10,5 @@ class VersionTest(unittest.TestCase):
 
         self.func = get_version
 
-    def test_version_return_type_is_correct(self):
-        result = self.func()
-        self.assertIsInstance(result, str)
-
     def test_version_is_correct(self):
-        self.assertEqual(self.func(), str("0.27.1"))
+        self.assertEqual(self.func(), u"0.27.1")

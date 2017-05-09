@@ -12,10 +12,19 @@ but here their names do not have ``cmark_`` or ``CMARK_`` prefixes.
 from paka.cmark._cmark import ffi as _ffi, lib as _lib
 
 
-_ENCODING = "utf-8"
+ENCODING = "utf-8"
+"""Encoding that is used for text manipulation."""
 
 OPT_DEFAULT = _lib.CMARK_OPT_DEFAULT
 """Default options."""
+OPT_HARDBREAKS = _lib.CMARK_OPT_HARDBREAKS
+"""Render “soft break” nodes as hard line breaks."""
+OPT_NOBREAKS = _lib.CMARK_OPT_NOBREAKS
+"""Render “soft break” nodes as spaces."""
+OPT_SOURCEPOS = _lib.CMARK_OPT_SOURCEPOS
+"""Render with “sourcepos” information."""
+OPT_SAFE = _lib.CMARK_OPT_SAFE
+"""Suppress raw HTML and unsafe links while rendering."""
 
 EVENT_ENTER = _lib.CMARK_EVENT_ENTER
 """Entering node."""
@@ -30,6 +39,18 @@ NODE_CODE_BLOCK = _lib.CMARK_NODE_CODE_BLOCK
 """Block of code."""
 NODE_HTML_BLOCK = _lib.CMARK_NODE_HTML_BLOCK
 """Raw HTML block."""
+
+
+def version_string():
+    """Return C library version as string.
+
+    .. hint::
+
+        Use :py:func:`text_from_c` to convert value returned
+        by this function into text.
+
+    """
+    return _lib.cmark_version_string()
 
 
 def parse_document(buffer, length, options):
@@ -187,6 +208,32 @@ def iter_get_node(iter_):
     return _lib.cmark_iter_get_node(iter_)
 
 
+def markdown_to_html(buffer, length, options):
+    """Render HTML from CommonMark.
+
+    .. hint::
+
+        Use :py:func:`text_from_c` to convert value returned
+        by this function into text.
+
+    Parameters
+    ----------
+    buffer: bytes
+        CommonMark document.
+
+        .. hint::
+
+            Use :py:func:`text_to_c` to convert text into bytes.
+
+    length: int
+        Length of ``buffer``.
+    options
+        See :ref:`options <options>`.
+
+    """
+    return _lib.cmark_markdown_to_html(buffer, length, options)
+
+
 def render_html(root, options):
     """Render tree of nodes as HTML.
 
@@ -206,11 +253,93 @@ def render_html(root, options):
     return _lib.cmark_render_html(root, options)
 
 
+def render_xml(root, options):
+    """Render tree of nodes as XML.
+
+    .. hint::
+
+        Use :py:func:`text_from_c` to convert value returned
+        by this function into text.
+
+    Parameters
+    ----------
+    root
+        Root node.
+    options
+        See :ref:`options <options>`.
+
+    """
+    return _lib.cmark_render_xml(root, options)
+
+
+def render_man(root, options, width):
+    """Render tree of nodes as groff.
+
+    .. hint::
+
+        Use :py:func:`text_from_c` to convert value returned
+        by this function into text.
+
+    Parameters
+    ----------
+    root
+        Root node.
+    options
+        See :ref:`options <options>`.
+    width: int
+        Maximum line width for line wrapping.
+
+    """
+    return _lib.cmark_render_man(root, options, width)
+
+
+def render_commonmark(root, options, width):
+    """Render tree of nodes as CommonMark.
+
+    .. hint::
+
+        Use :py:func:`text_from_c` to convert value returned
+        by this function into text.
+
+    Parameters
+    ----------
+    root
+        Root node.
+    options
+        See :ref:`options <options>`.
+    width: int
+        Maximum line width for line wrapping.
+
+    """
+    return _lib.cmark_render_commonmark(root, options, width)
+
+
+def render_latex(root, options, width):
+    """Render tree of nodes as LaTeX.
+
+    .. hint::
+
+        Use :py:func:`text_from_c` to convert value returned
+        by this function into text.
+
+    Parameters
+    ----------
+    root
+        Root node.
+    options
+        See :ref:`options <options>`.
+    width: int
+        Maximum line width for line wrapping.
+
+    """
+    return _lib.cmark_render_latex(root, options, width)
+
+
 def text_to_c(text):
     """Convert text to bytes suitable for passing into C functions."""
-    return text.encode(_ENCODING)
+    return text.encode(ENCODING)
 
 
 def text_from_c(c_string):
     """Convert C string (e.g. returned from C function) to text."""
-    return _ffi.string(c_string).decode(_ENCODING)
+    return _ffi.string(c_string).decode(ENCODING)

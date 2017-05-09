@@ -4,13 +4,8 @@
 
 """
 
-import sys
-
-from paka.cmark._cmark import ffi, lib
-
-
-_PY2 = sys.version_info.major == 2
-_ENCODING = "utf-8"
+from paka.cmark._cmark import ffi as _ffi
+from paka.cmark import lowlevel as _lowlevel
 
 
 class LineBreaks(object):  # pylint: disable=too-few-public-methods
@@ -26,15 +21,15 @@ class LineBreaks(object):  # pylint: disable=too-few-public-methods
 def _add_breaks_to_opts(breaks, opts):
     if breaks:
         if breaks == "hard":
-            opts |= lib.CMARK_OPT_HARDBREAKS
+            opts |= _lowlevel.OPT_HARDBREAKS
     else:
-        opts |= lib.CMARK_OPT_NOBREAKS
+        opts |= _lowlevel.OPT_NOBREAKS
     return opts
 
 
 def _add_sourcepos_to_opts(sourcepos, opts):
     if sourcepos:
-        opts |= lib.CMARK_OPT_SOURCEPOS
+        opts |= _lowlevel.OPT_SOURCEPOS
     return opts
 
 
@@ -47,10 +42,7 @@ def get_version():
         Version as X.Y.Z.
 
     """
-    result = ffi.string(lib.cmark_version_string())
-    if _PY2:  # pragma: no cover
-        return result
-    return result.decode("ascii")
+    return _lowlevel.text_from_c(_lowlevel.version_string())
 
 
 def to_html(text, breaks=False, safe=False, sourcepos=False):
@@ -78,14 +70,13 @@ def to_html(text, breaks=False, safe=False, sourcepos=False):
         HTML
 
     """
-    text_bytes = text.encode(_ENCODING)
     opts = _add_sourcepos_to_opts(
-        sourcepos, _add_breaks_to_opts(breaks, lib.CMARK_OPT_DEFAULT))
+        sourcepos, _add_breaks_to_opts(breaks, _lowlevel.OPT_DEFAULT))
     if safe:
-        opts |= lib.CMARK_OPT_SAFE
-    return ffi.string(
-        lib.cmark_markdown_to_html(
-            text_bytes, len(text_bytes), opts)).decode(_ENCODING)
+        opts |= _lowlevel.OPT_SAFE
+    text_bytes = _lowlevel.text_to_c(text)
+    return _lowlevel.text_from_c(
+        _lowlevel.markdown_to_html(text_bytes, len(text_bytes), opts))
 
 
 def to_xml(text, sourcepos=False):
@@ -105,12 +96,11 @@ def to_xml(text, sourcepos=False):
         XML
 
     """
-    opts = _add_sourcepos_to_opts(sourcepos, lib.CMARK_OPT_DEFAULT)
-    text_bytes = text.encode(_ENCODING)
-    parsed = lib.cmark_parse_document(text_bytes, len(text_bytes), opts)
-    root = ffi.gc(parsed, lib.cmark_node_free)
-    rendered = lib.cmark_render_xml(root, opts)
-    return ffi.string(rendered).decode(_ENCODING)
+    opts = _add_sourcepos_to_opts(sourcepos, _lowlevel.OPT_DEFAULT)
+    text_bytes = _lowlevel.text_to_c(text)
+    parsed = _lowlevel.parse_document(text_bytes, len(text_bytes), opts)
+    root = _ffi.gc(parsed, _lowlevel.node_free)
+    return _lowlevel.text_from_c(_lowlevel.render_xml(root, opts))
 
 
 def to_commonmark(text, breaks=False, width=0):
@@ -137,12 +127,12 @@ def to_commonmark(text, breaks=False, width=0):
         CommonMark
 
     """
-    opts = _add_breaks_to_opts(breaks, lib.CMARK_OPT_DEFAULT)
-    text_bytes = text.encode(_ENCODING)
-    parsed = lib.cmark_parse_document(text_bytes, len(text_bytes), opts)
-    root = ffi.gc(parsed, lib.cmark_node_free)
-    rendered = lib.cmark_render_commonmark(root, opts, width)
-    return ffi.string(rendered).decode(_ENCODING)
+    opts = _add_breaks_to_opts(breaks, _lowlevel.OPT_DEFAULT)
+    text_bytes = _lowlevel.text_to_c(text)
+    parsed = _lowlevel.parse_document(text_bytes, len(text_bytes), opts)
+    root = _ffi.gc(parsed, _lowlevel.node_free)
+    return _lowlevel.text_from_c(
+        _lowlevel.render_commonmark(root, opts, width))
 
 
 def to_man(text, breaks=False, width=0):
@@ -169,12 +159,12 @@ def to_man(text, breaks=False, width=0):
         Page without the header.
 
     """
-    opts = _add_breaks_to_opts(breaks, lib.CMARK_OPT_DEFAULT)
-    text_bytes = text.encode(_ENCODING)
-    parsed = lib.cmark_parse_document(text_bytes, len(text_bytes), opts)
-    root = ffi.gc(parsed, lib.cmark_node_free)
-    rendered = lib.cmark_render_man(root, opts, width)
-    return ffi.string(rendered).decode(_ENCODING)
+    opts = _add_breaks_to_opts(breaks, _lowlevel.OPT_DEFAULT)
+    text_bytes = _lowlevel.text_to_c(text)
+    parsed = _lowlevel.parse_document(text_bytes, len(text_bytes), opts)
+    root = _ffi.gc(parsed, _lowlevel.node_free)
+    return _lowlevel.text_from_c(
+        _lowlevel.render_man(root, opts, width))
 
 
 def to_latex(text, breaks=False, width=0):
@@ -200,9 +190,9 @@ def to_latex(text, breaks=False, width=0):
         LaTeX document.
 
     """
-    opts = _add_breaks_to_opts(breaks, lib.CMARK_OPT_DEFAULT)
-    text_bytes = text.encode(_ENCODING)
-    parsed = lib.cmark_parse_document(text_bytes, len(text_bytes), opts)
-    root = ffi.gc(parsed, lib.cmark_node_free)
-    rendered = lib.cmark_render_latex(root, opts, width)
-    return ffi.string(rendered).decode(_ENCODING)
+    opts = _add_breaks_to_opts(breaks, _lowlevel.OPT_DEFAULT)
+    text_bytes = _lowlevel.text_to_c(text)
+    parsed = _lowlevel.parse_document(text_bytes, len(text_bytes), opts)
+    root = _ffi.gc(parsed, _lowlevel.node_free)
+    return _lowlevel.text_from_c(
+        _lowlevel.render_latex(root, opts, width))
