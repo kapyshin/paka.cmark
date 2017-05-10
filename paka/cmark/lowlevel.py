@@ -39,6 +39,50 @@ NODE_CODE_BLOCK = _lib.CMARK_NODE_CODE_BLOCK
 """Block of code."""
 NODE_HTML_BLOCK = _lib.CMARK_NODE_HTML_BLOCK
 """Raw HTML block."""
+NODE_DOCUMENT = _lib.CMARK_NODE_DOCUMENT
+"""Document."""
+NODE_BLOCK_QUOTE = _lib.CMARK_NODE_BLOCK_QUOTE
+"""Block quote."""
+NODE_LIST = _lib.CMARK_NODE_LIST
+"""List."""
+NODE_ITEM = _lib.CMARK_NODE_ITEM
+"""List item."""
+NODE_CUSTOM_BLOCK = _lib.CMARK_NODE_CUSTOM_BLOCK
+"""Block of custom."""
+NODE_PARAGRAPH = _lib.CMARK_NODE_PARAGRAPH
+"""Paragraph."""
+NODE_HEADING = _lib.CMARK_NODE_HEADING
+"""Heading."""
+NODE_THEMATIC_BREAK = _lib.CMARK_NODE_THEMATIC_BREAK
+"""Thematic break."""
+NODE_FIRST_BLOCK = _lib.CMARK_NODE_FIRST_BLOCK
+"""First block."""
+NODE_LAST_BLOCK = _lib.CMARK_NODE_LAST_BLOCK
+"""Last block."""
+NODE_TEXT = _lib.CMARK_NODE_TEXT
+"""Text."""
+NODE_SOFTBREAK = _lib.CMARK_NODE_SOFTBREAK
+"""Soft break."""
+NODE_LINEBREAK = _lib.CMARK_NODE_LINEBREAK
+"""Line break."""
+NODE_CODE = _lib.CMARK_NODE_CODE
+"""Inline code."""
+NODE_HTML_INLINE = _lib.CMARK_NODE_HTML_INLINE
+"""Inline HTML."""
+NODE_CUSTOM_INLINE = _lib.CMARK_NODE_CUSTOM_INLINE
+"""Inline custom."""
+NODE_EMPH = _lib.CMARK_NODE_EMPH
+"""Emphasis."""
+NODE_STRONG = _lib.CMARK_NODE_STRONG
+"""Strong emphasis."""
+NODE_LINK = _lib.CMARK_NODE_LINK
+"""Link."""
+NODE_IMAGE = _lib.CMARK_NODE_IMAGE
+"""Image."""
+NODE_FIRST_INLINE = _lib.CMARK_NODE_FIRST_INLINE
+"""First inline."""
+NODE_LAST_INLINE = _lib.CMARK_NODE_LAST_INLINE
+"""Last inline."""
 
 
 def version_string():

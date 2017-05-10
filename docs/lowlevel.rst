@@ -59,6 +59,28 @@ Node types
 .. autodata:: NODE_NONE
 .. autodata:: NODE_CODE_BLOCK
 .. autodata:: NODE_HTML_BLOCK
+.. autodata:: NODE_DOCUMENT
+.. autodata:: NODE_BLOCK_QUOTE
+.. autodata:: NODE_LIST
+.. autodata:: NODE_ITEM
+.. autodata:: NODE_CUSTOM_BLOCK
+.. autodata:: NODE_PARAGRAPH
+.. autodata:: NODE_HEADING
+.. autodata:: NODE_THEMATIC_BREAK
+.. autodata:: NODE_FIRST_BLOCK
+.. autodata:: NODE_LAST_BLOCK
+.. autodata:: NODE_TEXT
+.. autodata:: NODE_SOFTBREAK
+.. autodata:: NODE_LINEBREAK
+.. autodata:: NODE_CODE
+.. autodata:: NODE_HTML_INLINE
+.. autodata:: NODE_CUSTOM_INLINE
+.. autodata:: NODE_EMPH
+.. autodata:: NODE_STRONG
+.. autodata:: NODE_LINK
+.. autodata:: NODE_IMAGE
+.. autodata:: NODE_FIRST_INLINE
+.. autodata:: NODE_LAST_INLINE
 
 Python Helpers
 --------------
