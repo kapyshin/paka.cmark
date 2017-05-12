@@ -75,8 +75,12 @@ class IterationWithReplacementTest(unittest.TestCase):
                 self.mod.text_from_c(self.mod.node_get_fence_info(old_node)),
                 self.mod.text_from_c(self.mod.node_get_literal(old_node))))
         new_node = self.mod.node_new(self.mod.NODE_HTML_BLOCK)
-        assert self.mod.node_set_literal(new_node, contents) == 1
-        assert self.mod.node_replace(old_node, new_node) == 1
+        try:
+            assert self.mod.node_set_literal(new_node, contents) == 1
+            assert self.mod.node_replace(old_node, new_node) == 1
+        except Exception:
+            self.mod.node_free(new_node)
+            raise
         self.mod.node_free(old_node)
 
     def _substitute_code_blocks(self, root):
