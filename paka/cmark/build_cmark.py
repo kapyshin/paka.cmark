@@ -91,6 +91,12 @@ typedef enum {
   CMARK_NODE_LAST_INLINE = CMARK_NODE_IMAGE,
 } cmark_node_type;
 
+typedef enum {
+  CMARK_NO_LIST,
+  CMARK_BULLET_LIST,
+  CMARK_ORDERED_LIST
+} cmark_list_type;
+
 typedef struct cmark_iter cmark_iter;
 typedef enum {
   CMARK_EVENT_NONE,
@@ -108,12 +114,16 @@ cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
 cmark_node *cmark_node_new(cmark_node_type type);
 void cmark_node_free(cmark_node *node);
 
+cmark_node *cmark_node_first_child(cmark_node *node);
+
 int cmark_node_replace(cmark_node *oldnode, cmark_node *newnode);
 
 cmark_node_type cmark_node_get_type(cmark_node *node);
 const char *cmark_node_get_fence_info(cmark_node *node);
 const char *cmark_node_get_literal(cmark_node *node);
 int cmark_node_set_literal(cmark_node *node, const char *content);
+cmark_list_type cmark_node_get_list_type(cmark_node *node);
+int cmark_node_set_list_type(cmark_node *node, cmark_list_type type);
 
 char *cmark_render_commonmark(cmark_node *root, int options, int width);
 char *cmark_render_xml(cmark_node *root, int options);

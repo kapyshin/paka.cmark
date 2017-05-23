@@ -12,11 +12,14 @@ Low-level API
 .. autofunction:: parse_document
 .. autofunction:: node_new
 .. autofunction:: node_free
+.. autofunction:: node_first_child
 .. autofunction:: node_replace
 .. autofunction:: node_get_type
 .. autofunction:: node_get_fence_info
 .. autofunction:: node_get_literal
 .. autofunction:: node_set_literal
+.. autofunction:: node_get_list_type
+.. autofunction:: node_set_list_type
 
 Iteration
 ---------
@@ -81,6 +84,14 @@ Node types
 .. autodata:: NODE_IMAGE
 .. autodata:: NODE_FIRST_INLINE
 .. autodata:: NODE_LAST_INLINE
+
+.. _list_types:
+
+List types
+----------
+.. autodata:: BULLET_LIST
+.. autodata:: ORDERED_LIST
+.. autodata:: NO_LIST
 
 Python Helpers
 --------------

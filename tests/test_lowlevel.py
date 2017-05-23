@@ -109,3 +109,54 @@ class IterationWithReplacementTest(unittest.TestCase):
         finally:
             self.mod.node_free(root)
         self.assertEqual(result, self.EXPECTED)
+
+
+class ListTypeTest(unittest.TestCase):
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    def check(self, source, expected, preparer=lambda node: None):
+        text_bytes = self.mod.text_to_c(source)
+        root = self.mod.parse_document(
+            text_bytes, len(text_bytes), self.mod.OPT_DEFAULT)
+        node = self.mod.node_first_child(root)
+        try:
+            preparer(node)
+            self.assertEqual(
+                self.mod.node_get_list_type(node), expected)
+        finally:
+            self.mod.node_free(root)
+
+    def test_bullet_list(self):
+        source = textwrap.dedent("""\
+            * zero
+            * one
+            """)
+        self.check(source, self.mod.BULLET_LIST)
+
+    def test_ordered_list(self):
+        source = textwrap.dedent("""\
+            1. one
+            2. two
+            """)
+        self.check(source, self.mod.ORDERED_LIST)
+
+    def test_no_list(self):
+        self.check("Hello, List!\n", self.mod.NO_LIST)
+
+    def test_changing_from_bullet_list_to_ordered(self):
+        def _prepare_node(node):
+            self.assertEqual(
+                self.mod.node_get_list_type(node),
+                self.mod.BULLET_LIST)
+            assert self.mod.node_set_list_type(
+                node, self.mod.ORDERED_LIST) == 1
+
+        source = textwrap.dedent("""\
+            * one
+            * two
+            """)
+        self.check(source, self.mod.ORDERED_LIST, preparer=_prepare_node)

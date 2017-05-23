@@ -84,6 +84,13 @@ NODE_FIRST_INLINE = _lib.CMARK_NODE_FIRST_INLINE
 NODE_LAST_INLINE = _lib.CMARK_NODE_LAST_INLINE
 """Last inline."""
 
+BULLET_LIST = _lib.CMARK_BULLET_LIST
+"""Bullet list."""
+ORDERED_LIST = _lib.CMARK_ORDERED_LIST
+"""Ordered list."""
+NO_LIST = _lib.CMARK_NO_LIST
+"""Node is not a list."""
+
 
 def version_string():
     """Return C library version as string.
@@ -141,6 +148,11 @@ def node_new(node_type):
 def node_free(node):
     """Free memory for node and its children (if any)."""
     return _lib.cmark_node_free(node)
+
+
+def node_first_child(node):
+    """Return first child of node, if available."""
+    return _lib.cmark_node_first_child(node)
 
 
 def node_replace(old_node, new_node):
@@ -214,6 +226,34 @@ def node_set_literal(node, contents):
 
     """
     return _lib.cmark_node_set_literal(node, contents)
+
+
+def node_get_list_type(node):
+    """Return list type of node.
+
+    :returns: One of :ref:`list types <list_types>`.
+
+    """
+    return _lib.cmark_node_get_list_type(node)
+
+
+def node_set_list_type(node, list_type):
+    """Set the list type of node.
+
+    Parameters
+    ----------
+    node
+        Node on which to operate.
+    list_type
+        One of :ref:`list types <list_types>`.
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_set_list_type(node, list_type)
 
 
 def iter_new(root):
