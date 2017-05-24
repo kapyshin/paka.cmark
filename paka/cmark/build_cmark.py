@@ -114,7 +114,11 @@ cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
 cmark_node *cmark_node_new(cmark_node_type type);
 void cmark_node_free(cmark_node *node);
 
+cmark_node *cmark_node_next(cmark_node *node);
+cmark_node *cmark_node_previous(cmark_node *node);
+cmark_node *cmark_node_parent(cmark_node *node);
 cmark_node *cmark_node_first_child(cmark_node *node);
+cmark_node *cmark_node_last_child(cmark_node *node);
 
 int cmark_node_replace(cmark_node *oldnode, cmark_node *newnode);
 

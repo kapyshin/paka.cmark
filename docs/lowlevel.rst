@@ -12,7 +12,6 @@ Low-level API
 .. autofunction:: parse_document
 .. autofunction:: node_new
 .. autofunction:: node_free
-.. autofunction:: node_first_child
 .. autofunction:: node_replace
 .. autofunction:: node_get_type
 .. autofunction:: node_get_fence_info
@@ -20,6 +19,14 @@ Low-level API
 .. autofunction:: node_set_literal
 .. autofunction:: node_get_list_type
 .. autofunction:: node_set_list_type
+
+Tree traversal
+--------------
+.. autofunction:: node_next
+.. autofunction:: node_previous
+.. autofunction:: node_parent
+.. autofunction:: node_first_child
+.. autofunction:: node_last_child
 
 Iteration
 ---------

@@ -9,6 +9,8 @@ but here their names do not have ``cmark_`` or ``CMARK_`` prefixes.
 
 """
 
+import functools
+
 from paka.cmark._cmark import ffi as _ffi, lib as _lib
 
 
@@ -92,6 +94,16 @@ NO_LIST = _lib.CMARK_NO_LIST
 """Node is not a list."""
 
 
+def _nullable(func):
+    """Convert returned cffi's NULL into None."""
+    @functools.wraps(func)
+    def _wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        if result != _ffi.NULL:
+            return result
+    return _wrapper
+
+
 def version_string():
     """Return C library version as string.
 
@@ -150,9 +162,54 @@ def node_free(node):
     return _lib.cmark_node_free(node)
 
 
+@_nullable
+def node_next(node):
+    """Return next node, if available.
+
+    :returns: A node or None.
+
+    """
+    return _lib.cmark_node_next(node)
+
+
+@_nullable
+def node_previous(node):
+    """Return previous node, if available.
+
+    :returns: A node or None.
+
+    """
+    return _lib.cmark_node_previous(node)
+
+
+@_nullable
+def node_parent(node):
+    """Return a parent of node, if available.
+
+    :returns: A node or None.
+
+    """
+    return _lib.cmark_node_parent(node)
+
+
+@_nullable
 def node_first_child(node):
-    """Return first child of node, if available."""
+    """Return first child of node, if available.
+
+    :returns: A node or None.
+
+    """
     return _lib.cmark_node_first_child(node)
+
+
+@_nullable
+def node_last_child(node):
+    """Return last child of node, if available.
+
+    :returns: A node or None.
+
+    """
+    return _lib.cmark_node_last_child(node)
 
 
 def node_replace(old_node, new_node):

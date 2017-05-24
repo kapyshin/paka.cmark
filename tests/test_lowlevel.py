@@ -2,6 +2,7 @@
 
 from __future__ import unicode_literals
 
+import functools
 import textwrap
 import unittest
 
@@ -160,3 +161,82 @@ class ListTypeTest(unittest.TestCase):
             * two
             """)
         self.check(source, self.mod.ORDERED_LIST, preparer=_prepare_node)
+
+
+def expect_root(source):
+    """Decorate test method so it'll get root of parsed source as argument."""
+    def _wrapper(func):
+        @functools.wraps(func)
+        def _inner(self):
+            text_bytes = self.mod.text_to_c(source)
+            root = self.mod.parse_document(
+                text_bytes, len(text_bytes), self.mod.OPT_DEFAULT)
+            try:
+                return func(self, root)
+            finally:
+                self.mod.node_free(root)
+        return _inner
+    return _wrapper
+
+
+class TreeTraversalTest(unittest.TestCase):
+    SAMPLE = textwrap.dedent("""\
+        > Hello, Traversal!
+
+        * a
+        * b
+        * c
+        """)
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    @expect_root(SAMPLE)
+    def test_next_exists(self, root):
+        self.assertIsNotNone(
+            self.mod.node_next(self.mod.node_first_child(root)))
+
+    @expect_root(SAMPLE)
+    def test_next_does_not_exist(self, root):
+        self.assertIsNone(self.mod.node_next(root))
+
+    @expect_root(SAMPLE)
+    def test_previous_exists(self, root):
+        self.assertIsNotNone(
+            self.mod.node_previous(
+                self.mod.node_next(self.mod.node_first_child(root))))
+
+    @expect_root(SAMPLE)
+    def test_previous_does_not_exist(self, root):
+        self.assertIsNone(
+            self.mod.node_previous(self.mod.node_first_child(root)))
+
+    @expect_root(SAMPLE)
+    def test_parent_exists(self, root):
+        self.assertIsNotNone(
+            self.mod.node_parent(self.mod.node_first_child(root)))
+
+    @expect_root(SAMPLE)
+    def test_parent_does_not_exist(self, root):
+        self.assertIsNone(self.mod.node_parent(root))
+
+    @expect_root(SAMPLE)
+    def test_first_child_exists(self, root):
+        self.assertIsNotNone(self.mod.node_first_child(root))
+
+    @expect_root(SAMPLE)
+    def test_first_child_does_not_exist(self, root):
+        getter = self.mod.node_first_child
+        self.assertIsNone(getter(getter(getter(getter(root)))))
+
+    @expect_root(SAMPLE)
+    def test_last_child_exists(self, root):
+        self.assertIsNotNone(self.mod.node_last_child(root))
+
+    @expect_root(SAMPLE)
+    def test_last_child_does_not_exist(self, root):
+        getter = self.mod.node_last_child
+        self.assertIsNone(
+            getter(getter(getter(getter(getter(root))))))
