@@ -238,8 +238,12 @@ def node_get_type(node):
     return _lib.cmark_node_get_type(node)
 
 
+@_nullable
 def node_get_fence_info(node):
-    """Return info string from fenced code block.
+    """Return fence info from fenced code block.
+
+    For nodes having type other than :py:data:`NODE_CODE_BLOCK`
+    returns None.
 
     .. hint::
 
@@ -248,6 +252,29 @@ def node_get_fence_info(node):
 
     """
     return _lib.cmark_node_get_fence_info(node)
+
+
+def node_set_fence_info(node, info):
+    """Set fence info of fenced code block.
+
+    Parameters
+    ----------
+    node
+        Node on which to operate.
+    info: bytes
+        Fence info.
+
+        .. hint::
+
+            Use :py:func:`text_to_c` to convert text into bytes.
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_set_fence_info(node, info)
 
 
 def node_get_literal(node):

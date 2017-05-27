@@ -240,3 +240,37 @@ class TreeTraversalTest(unittest.TestCase):
         getter = self.mod.node_last_child
         self.assertIsNone(
             getter(getter(getter(getter(getter(root))))))
+
+
+class FenceInfoTest(unittest.TestCase):
+    INFO = "something-interesting-here"
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    def set_fence_info(self, node):
+        return self.mod.node_set_fence_info(
+            node, self.mod.text_to_c(self.INFO))
+
+    def test_paragraph_node(self):
+        node = self.mod.node_new(self.mod.NODE_PARAGRAPH)
+        try:
+            self.assertEqual(self.set_fence_info(node), 0)
+            self.assertIsNone(self.mod.node_get_fence_info(node))
+        finally:
+            self.mod.node_free(node)
+
+    def test_code_block_node(self):
+        node = self.mod.node_new(self.mod.NODE_CODE_BLOCK)
+        try:
+            self.assertEqual(
+                self.mod.text_from_c(self.mod.node_get_fence_info(node)),
+                "")
+            self.assertEqual(self.set_fence_info(node), 1)
+            self.assertEqual(
+                self.mod.text_from_c(self.mod.node_get_fence_info(node)),
+                self.INFO)
+        finally:
+            self.mod.node_free(node)
