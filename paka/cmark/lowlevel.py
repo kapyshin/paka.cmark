@@ -516,4 +516,6 @@ def text_to_c(text):
 
 def text_from_c(c_string):
     """Convert C string (e.g. returned from C function) to text."""
+    if c_string is None:  # convenience for ones not willing to check :)
+        return ""
     return _ffi.string(c_string).decode(ENCODING)

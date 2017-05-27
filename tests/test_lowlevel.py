@@ -312,3 +312,14 @@ class LiteralTest(unittest.TestCase):
             self.assertIsNone(self.mod.node_get_literal(node))
         finally:
             self.mod.node_free(node)
+
+
+class HelpersTest(unittest.TestCase):
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    def test_text_from_c_can_handle_none(self):
+        self.assertEqual(self.mod.text_from_c(None), "")
