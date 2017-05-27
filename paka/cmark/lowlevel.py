@@ -159,7 +159,7 @@ def node_new(node_type):
 
 def node_free(node):
     """Free memory for node and its children (if any)."""
-    return _lib.cmark_node_free(node)
+    _lib.cmark_node_free(node)
 
 
 @_nullable
@@ -332,7 +332,7 @@ def iter_new(root):
 
 def iter_free(iter_):
     """Free memory of "iterator"."""
-    return _lib.cmark_iter_free(iter_)
+    _lib.cmark_iter_free(iter_)
 
 
 def iter_next(iter_):
