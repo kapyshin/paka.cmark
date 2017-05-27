@@ -277,8 +277,14 @@ def node_set_fence_info(node, info):
     return _lib.cmark_node_set_fence_info(node, info)
 
 
+@_nullable
 def node_get_literal(node):
     """Return string contents of node.
+
+    Returns None for nodes having type other than
+    :py:data:`NODE_HTML_BLOCK`, :py:data:`NODE_TEXT`,
+    :py:data:`NODE_HTML_INLINE`, :py:data:`NODE_CODE`
+    or :py:data:`NODE_CODE_BLOCK`.
 
     .. hint::
 

@@ -274,3 +274,41 @@ class FenceInfoTest(unittest.TestCase):
                 self.INFO)
         finally:
             self.mod.node_free(node)
+
+
+class LiteralTest(unittest.TestCase):
+    CONTENTS = "here is some exciting new contents"
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    def set_literal(self, node):
+        return self.mod.node_set_literal(
+            node, self.mod.text_to_c(self.CONTENTS))
+
+    def test_supported_node_types(self):
+        for node_type_name in (
+                "NODE_HTML_BLOCK", "NODE_TEXT", "NODE_HTML_INLINE",
+                "NODE_CODE", "NODE_CODE_BLOCK"):
+            node = self.mod.node_new(getattr(self.mod, node_type_name))
+            try:
+                self.assertEqual(
+                    self.mod.text_from_c(self.mod.node_get_literal(node)),
+                    "")
+                self.assertEqual(self.set_literal(node), 1)
+                self.assertEqual(
+                    self.mod.text_from_c(self.mod.node_get_literal(node)),
+                    self.CONTENTS)
+            finally:
+                self.mod.node_free(node)
+
+    def test_one_of_unsupported_node_types(self):
+        node = self.mod.node_new(self.mod.NODE_PARAGRAPH)
+        try:
+            self.assertIsNone(self.mod.node_get_literal(node))
+            self.assertEqual(self.set_literal(node), 0)
+            self.assertIsNone(self.mod.node_get_literal(node))
+        finally:
+            self.mod.node_free(node)
