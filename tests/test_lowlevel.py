@@ -163,20 +163,24 @@ class ListTypeTest(unittest.TestCase):
         self.check(source, self.mod.ORDERED_LIST, preparer=_prepare_node)
 
 
-def expect_root(source):
+def expect_root(source, transformer=lambda mod, root: root):
     """Decorate test method so it'll get root of parsed source as argument."""
     def _wrapper(func):
         @functools.wraps(func)
         def _inner(self):
-            text_bytes = self.mod.text_to_c(source)
+            text_bytes = self.mod.text_to_c(textwrap.dedent(source))
             root = self.mod.parse_document(
                 text_bytes, len(text_bytes), self.mod.OPT_DEFAULT)
             try:
-                return func(self, root)
+                return func(self, transformer(self.mod, root))
             finally:
                 self.mod.node_free(root)
         return _inner
     return _wrapper
+
+
+expect_first_child = functools.partial(
+    expect_root, transformer=lambda mod, root: mod.node_first_child(root))
 
 
 class TreeTraversalTest(unittest.TestCase):
@@ -312,6 +316,65 @@ class LiteralTest(unittest.TestCase):
             self.assertIsNone(self.mod.node_get_literal(node))
         finally:
             self.mod.node_free(node)
+
+
+class ListDelimiterTest(unittest.TestCase):
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    @expect_first_child("""\
+        1) one
+        2) two
+        """)
+    def test_paren_delim_list_node(self, node):
+        self.assertEqual(
+            self.mod.node_get_list_delim(node),
+            self.mod.PAREN_DELIM)
+
+    @expect_first_child("""\
+        1. one
+        2. two
+        """)
+    def test_period_delim_list_node(self, node):
+        self.assertEqual(
+            self.mod.node_get_list_delim(node),
+            self.mod.PERIOD_DELIM)
+
+    @expect_first_child("""\
+        * one
+        * two
+        """)
+    def test_no_delim_list_node(self, node):
+        # https://github.com/jgm/cmark/issues/201
+        self.assertEqual(
+            self.mod.node_get_list_delim(node),
+            self.mod.PERIOD_DELIM)
+
+    @expect_first_child("""\
+        one
+        two
+        """)
+    def test_no_delim_non_list_node(self, node):
+        self.assertEqual(
+            self.mod.node_get_list_delim(node),
+            self.mod.NO_DELIM)
+
+    @expect_first_child("""\
+        1) one
+        2) two
+        """)
+    def test_changing_from_paren_to_period(self, node):
+        self.assertEqual(
+            self.mod.node_get_list_delim(node),
+            self.mod.PAREN_DELIM)
+        assert self.mod.node_set_list_delim(
+            node, self.mod.PERIOD_DELIM) == 1
+        self.assertEqual(
+            self.mod.node_get_list_delim(node),
+            self.mod.PERIOD_DELIM)
 
 
 class HelpersTest(unittest.TestCase):

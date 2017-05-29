@@ -93,6 +93,13 @@ ORDERED_LIST = _lib.CMARK_ORDERED_LIST
 NO_LIST = _lib.CMARK_NO_LIST
 """Node is not a list."""
 
+PAREN_DELIM = _lib.CMARK_PAREN_DELIM
+"""``)``"""
+PERIOD_DELIM = _lib.CMARK_PERIOD_DELIM
+"""``.``"""
+NO_DELIM = _lib.CMARK_NO_DELIM
+"""No list delimiter."""
+
 
 def _nullable(func):
     """Convert returned cffi's NULL into None."""
@@ -344,6 +351,34 @@ def node_set_list_type(node, list_type):
 
     """
     return _lib.cmark_node_set_list_type(node, list_type)
+
+
+def node_get_list_delim(node):
+    """Return type of list delimiter.
+
+    :returns: One of :ref:`list delimiters <list_delimiters>`.
+
+    """
+    return _lib.cmark_node_get_list_delim(node)
+
+
+def node_set_list_delim(node, list_delim):
+    """Set the type of list delimiter for node.
+
+    Parameters
+    ----------
+    node
+        Node on which to operate.
+    list_delim
+        One of :ref:`list delimiters <list_delimiters>`.
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_set_list_delim(node, list_delim)
 
 
 def iter_new(root):

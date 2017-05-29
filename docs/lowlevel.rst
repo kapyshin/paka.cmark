@@ -19,6 +19,8 @@ Low-level API
 .. autofunction:: node_set_literal
 .. autofunction:: node_get_list_type
 .. autofunction:: node_set_list_type
+.. autofunction:: node_get_list_delim
+.. autofunction:: node_set_list_delim
 
 Tree traversal
 --------------
@@ -99,6 +101,14 @@ List types
 .. autodata:: BULLET_LIST
 .. autodata:: ORDERED_LIST
 .. autodata:: NO_LIST
+
+.. _list_delimiters:
+
+List delimiters
+---------------
+.. autodata:: PERIOD_DELIM
+.. autodata:: PAREN_DELIM
+.. autodata:: NO_DELIM
 
 Python Helpers
 --------------

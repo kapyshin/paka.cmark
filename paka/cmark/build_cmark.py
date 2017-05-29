@@ -96,6 +96,11 @@ typedef enum {
   CMARK_BULLET_LIST,
   CMARK_ORDERED_LIST
 } cmark_list_type;
+typedef enum {
+  CMARK_NO_DELIM,
+  CMARK_PERIOD_DELIM,
+  CMARK_PAREN_DELIM
+} cmark_delim_type;
 
 typedef struct cmark_iter cmark_iter;
 typedef enum {
@@ -129,6 +134,8 @@ const char *cmark_node_get_literal(cmark_node *node);
 int cmark_node_set_literal(cmark_node *node, const char *content);
 cmark_list_type cmark_node_get_list_type(cmark_node *node);
 int cmark_node_set_list_type(cmark_node *node, cmark_list_type type);
+cmark_delim_type cmark_node_get_list_delim(cmark_node *node);
+int cmark_node_set_list_delim(cmark_node *node, cmark_delim_type delim);
 
 char *cmark_render_commonmark(cmark_node *root, int options, int width);
 char *cmark_render_xml(cmark_node *root, int options);
