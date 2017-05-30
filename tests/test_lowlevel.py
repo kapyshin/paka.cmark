@@ -348,10 +348,9 @@ class ListDelimiterTest(unittest.TestCase):
         * two
         """)
     def test_no_delim_list_node(self, node):
-        # https://github.com/jgm/cmark/issues/201
         self.assertEqual(
             self.mod.node_get_list_delim(node),
-            self.mod.PERIOD_DELIM)
+            self.mod.NO_DELIM)
 
     @expect_first_child("""\
         one
