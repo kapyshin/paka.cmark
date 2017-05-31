@@ -2,9 +2,10 @@
 
 from __future__ import unicode_literals
 
-import functools
 import textwrap
 import unittest
+
+from testutils import expect_root, expect_first_child
 
 
 class IterationWithReplacementTest(unittest.TestCase):
@@ -112,6 +113,71 @@ class IterationWithReplacementTest(unittest.TestCase):
         self.assertEqual(result, self.EXPECTED)
 
 
+class IterationTest(unittest.TestCase):
+    SAMPLE = """\
+        test1
+
+        > test2.0
+        > test2.1
+
+        test3
+        """
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    @expect_root(SAMPLE)
+    def test_get_root(self, root):
+        iter_ = self.mod.iter_new(root)
+        ev_type = None
+        try:
+            while ev_type != self.mod.EVENT_DONE:
+                ev_type = self.mod.iter_next(iter_)
+                self.assertEqual(root, self.mod.iter_get_root(iter_))
+        finally:
+            self.mod.iter_free(iter_)
+
+    @expect_root(SAMPLE)
+    def test_get_event_type(self, root):
+        iter_ = self.mod.iter_new(root)
+        ev_type = None
+        try:
+            while ev_type != self.mod.EVENT_DONE:
+                ev_type = self.mod.iter_next(iter_)
+                self.assertEqual(ev_type, self.mod.iter_get_event_type(iter_))
+        finally:
+            self.mod.iter_free(iter_)
+
+    @expect_root(SAMPLE)
+    def test_reset(self, root):
+        event_for_tracing = self.mod.EVENT_ENTER
+
+        def _get_trace(iter_):
+            ev_type = None
+            while ev_type != self.mod.EVENT_DONE:
+                ev_type = self.mod.iter_next(iter_)
+                if ev_type == event_for_tracing:
+                    node = self.mod.iter_get_node(iter_)
+                    yield node
+
+        iter_ = self.mod.iter_new(root)
+        try:
+            full_trace = tuple(_get_trace(iter_))
+        finally:
+            self.mod.iter_free(iter_)
+
+        iter_ = self.mod.iter_new(root)
+        try:
+            for n, start_node in enumerate(full_trace, start=1):
+                self.mod.iter_reset(iter_, start_node, event_for_tracing)
+                self.assertEqual(
+                    tuple(_get_trace(iter_)), full_trace[n:])
+        finally:
+            self.mod.iter_free(iter_)
+
+
 class ListTypeTest(unittest.TestCase):
 
     def setUp(self):
@@ -161,26 +227,6 @@ class ListTypeTest(unittest.TestCase):
             * two
             """)
         self.check(source, self.mod.ORDERED_LIST, preparer=_prepare_node)
-
-
-def expect_root(source, transformer=lambda mod, root: root):
-    """Decorate test method so it'll get root of parsed source as argument."""
-    def _wrapper(func):
-        @functools.wraps(func)
-        def _inner(self):
-            text_bytes = self.mod.text_to_c(textwrap.dedent(source))
-            root = self.mod.parse_document(
-                text_bytes, len(text_bytes), self.mod.OPT_DEFAULT)
-            try:
-                return func(self, transformer(self.mod, root))
-            finally:
-                self.mod.node_free(root)
-        return _inner
-    return _wrapper
-
-
-expect_first_child = functools.partial(
-    expect_root, transformer=lambda mod, root: mod.node_first_child(root))
 
 
 class TreeTraversalTest(unittest.TestCase):

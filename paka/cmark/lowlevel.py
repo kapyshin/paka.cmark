@@ -417,6 +417,36 @@ def iter_get_node(iter_):
     return _lib.cmark_iter_get_node(iter_)
 
 
+def iter_get_event_type(iter_):
+    """Return current event type.
+
+    :returns: One of :ref:`iteration event types <iteration_event_types>`.
+
+    """
+    return _lib.cmark_iter_get_event_type(iter_)
+
+
+def iter_get_root(iter_):
+    """Return root node."""
+    return _lib.cmark_iter_get_root(iter_)
+
+
+def iter_reset(iter_, node, event):
+    """Reset the iterator.
+
+    Parameters
+    ----------
+    iter_
+        "Iterator".
+    node
+        Node to make current.
+    event
+        :ref:`Event type <iteration_event_types>` to make current.
+
+    """
+    return _lib.cmark_iter_reset(iter_, node, event)
+
+
 def markdown_to_html(buffer, length, options):
     """Render HTML from CommonMark.
 

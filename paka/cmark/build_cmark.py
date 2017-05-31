@@ -147,6 +147,9 @@ cmark_iter *cmark_iter_new(cmark_node *root);
 void cmark_iter_free(cmark_iter *iter);
 cmark_event_type cmark_iter_next(cmark_iter *iter);
 cmark_node *cmark_iter_get_node(cmark_iter *iter);
+cmark_event_type cmark_iter_get_event_type(cmark_iter *iter);
+cmark_node *cmark_iter_get_root(cmark_iter *iter);
+void cmark_iter_reset(cmark_iter *iter, cmark_node *current, cmark_event_type event_type);
 """)
 
 

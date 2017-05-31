@@ -36,6 +36,9 @@ Iteration
 .. autofunction:: iter_free
 .. autofunction:: iter_next
 .. autofunction:: iter_get_node
+.. autofunction:: iter_get_event_type
+.. autofunction:: iter_get_root
+.. autofunction:: iter_reset
 
 .. _iteration_event_types:
 
