@@ -128,6 +128,7 @@ cmark_node *cmark_node_last_child(cmark_node *node);
 int cmark_node_replace(cmark_node *oldnode, cmark_node *newnode);
 
 cmark_node_type cmark_node_get_type(cmark_node *node);
+const char *cmark_node_get_type_string(cmark_node *node);
 const char *cmark_node_get_fence_info(cmark_node *node);
 int cmark_node_set_fence_info(cmark_node *node, const char *info);
 const char *cmark_node_get_literal(cmark_node *node);

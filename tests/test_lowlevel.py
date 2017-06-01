@@ -422,6 +422,31 @@ class ListDelimiterTest(unittest.TestCase):
             self.mod.PERIOD_DELIM)
 
 
+class NodeTypeStringTest(unittest.TestCase):
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    def check(self, node, expected):
+        self.assertEqual(
+            self.mod.text_from_c(self.mod.node_get_type_string(node)),
+            expected)
+
+    @expect_first_child("test")
+    def test_paragraph(self, node):
+        self.check(node, "paragraph")
+
+    @expect_root("test")
+    def test_document(self, node):
+        self.check(node, "document")
+
+    @expect_first_child("* a\n* b\n\n")
+    def test_list(self, node):
+        self.check(node, "list")
+
+
 class HelpersTest(unittest.TestCase):
 
     def setUp(self):

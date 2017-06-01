@@ -14,6 +14,7 @@ Low-level API
 .. autofunction:: node_free
 .. autofunction:: node_replace
 .. autofunction:: node_get_type
+.. autofunction:: node_get_type_string
 .. autofunction:: node_get_fence_info
 .. autofunction:: node_get_literal
 .. autofunction:: node_set_literal

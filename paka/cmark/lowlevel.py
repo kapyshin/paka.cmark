@@ -245,6 +245,18 @@ def node_get_type(node):
     return _lib.cmark_node_get_type(node)
 
 
+def node_get_type_string(node):
+    """Return type of node as string.
+
+    .. hint::
+
+        Use :py:func:`text_from_c` to convert value returned
+        by this function into text.
+
+    """
+    return _lib.cmark_node_get_type_string(node)
+
+
 @_nullable
 def node_get_fence_info(node):
     """Return fence info from fenced code block.
