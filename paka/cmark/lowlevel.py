@@ -424,6 +424,37 @@ def node_set_list_delim(node, list_delim):
     return _lib.cmark_node_set_list_delim(node, list_delim)
 
 
+def node_get_list_start(node):
+    """Return starting number of list.
+
+    Returns
+    -------
+    int
+        Starting number of an ordered list or ``0``.
+
+    """
+    return _lib.cmark_node_get_list_start(node)
+
+
+def node_set_list_start(node, start):
+    """Set starting number of ordered list.
+
+    Parameters
+    ----------
+    node
+        Ordered list.
+    start: int
+        Starting number.
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_set_list_start(node, start)
+
+
 def iter_new(root):
     """Create new "iterator" starting at root node.
 

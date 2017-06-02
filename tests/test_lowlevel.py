@@ -497,6 +497,36 @@ class HeadingLevelTest(unittest.TestCase):
         self.check(node, 5)
 
 
+class ListStartTest(unittest.TestCase):
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    def check(self, node, expected):
+        self.assertEqual(self.mod.node_get_list_start(node), expected)
+
+    @expect_first_child("* one\n* two\n\n")
+    def test_unordered_list(self, node):
+        # https://github.com/jgm/cmark/issues/202
+        self.check(node, 1)
+
+    @expect_first_child("1. one\n2. two\n\n")
+    def test_ordered_list_started_at_1(self, node):
+        self.check(node, 1)
+
+    @expect_first_child("7. one\n8. two\n\n")
+    def test_ordered_list_started_at_7(self, node):
+        self.check(node, 7)
+
+    @expect_first_child("1. one\n2. two\n\n")
+    def test_setting(self, node):
+        self.check(node, 1)
+        assert self.mod.node_set_list_start(node, 9) == 1
+        self.check(node, 9)
+
+
 class HelpersTest(unittest.TestCase):
 
     def setUp(self):
