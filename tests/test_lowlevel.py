@@ -509,8 +509,7 @@ class ListStartTest(unittest.TestCase):
 
     @expect_first_child("* one\n* two\n\n")
     def test_unordered_list(self, node):
-        # https://github.com/jgm/cmark/issues/202
-        self.check(node, 1)
+        self.check(node, 0)
 
     @expect_first_child("1. one\n2. two\n\n")
     def test_ordered_list_started_at_1(self, node):
