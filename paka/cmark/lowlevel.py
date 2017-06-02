@@ -337,6 +337,37 @@ def node_set_literal(node, contents):
     return _lib.cmark_node_set_literal(node, contents)
 
 
+def node_get_heading_level(node):
+    """Return level of heading.
+
+    Returns
+    -------
+    int
+        ``[1, 6]`` for headings, ``0`` for non-heading nodes.
+
+    """
+    return _lib.cmark_node_get_heading_level(node)
+
+
+def node_set_heading_level(node, level):
+    """Set level of heading.
+
+    Parameters
+    ----------
+    node
+        Node on which to operate.
+    level: int
+        ``[1, 6]``
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_set_heading_level(node, level)
+
+
 def node_get_list_type(node):
     """Return list type of node.
 

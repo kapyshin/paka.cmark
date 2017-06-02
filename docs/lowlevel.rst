@@ -18,6 +18,8 @@ Low-level API
 .. autofunction:: node_get_fence_info
 .. autofunction:: node_get_literal
 .. autofunction:: node_set_literal
+.. autofunction:: node_get_heading_level
+.. autofunction:: node_set_heading_level
 .. autofunction:: node_get_list_type
 .. autofunction:: node_set_list_type
 .. autofunction:: node_get_list_delim

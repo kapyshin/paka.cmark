@@ -447,6 +447,56 @@ class NodeTypeStringTest(unittest.TestCase):
         self.check(node, "list")
 
 
+class HeadingLevelTest(unittest.TestCase):
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    def check(self, node, expected):
+        self.assertEqual(
+            self.mod.node_get_heading_level(node), expected)
+
+    @expect_first_child("test")
+    def test_non_heading(self, node):
+        self.check(node, 0)
+
+    @expect_first_child("# Heading")
+    def test_h1(self, node):
+        self.check(node, 1)
+
+    @expect_first_child("## Heading")
+    def test_h2(self, node):
+        self.check(node, 2)
+
+    @expect_first_child("### Heading")
+    def test_h3(self, node):
+        self.check(node, 3)
+
+    @expect_first_child("#### Heading")
+    def test_h4(self, node):
+        self.check(node, 4)
+
+    @expect_first_child("##### Heading")
+    def test_h5(self, node):
+        self.check(node, 5)
+
+    @expect_first_child("###### Heading")
+    def test_h6(self, node):
+        self.check(node, 6)
+
+    @expect_first_child("####### Heading")
+    def test_too_many_chars_for_atx_heading(self, node):
+        self.check(node, 0)
+
+    @expect_first_child("Heading\n=======\n\n")
+    def test_setting(self, node):
+        self.check(node, 1)
+        assert self.mod.node_set_heading_level(node, 5) == 1
+        self.check(node, 5)
+
+
 class HelpersTest(unittest.TestCase):
 
     def setUp(self):

@@ -133,6 +133,8 @@ const char *cmark_node_get_fence_info(cmark_node *node);
 int cmark_node_set_fence_info(cmark_node *node, const char *info);
 const char *cmark_node_get_literal(cmark_node *node);
 int cmark_node_set_literal(cmark_node *node, const char *content);
+int cmark_node_get_heading_level(cmark_node *node);
+int cmark_node_set_heading_level(cmark_node *node, int level);
 cmark_list_type cmark_node_get_list_type(cmark_node *node);
 int cmark_node_set_list_type(cmark_node *node, cmark_list_type type);
 cmark_delim_type cmark_node_get_list_delim(cmark_node *node);
