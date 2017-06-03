@@ -455,6 +455,37 @@ def node_set_list_start(node, start):
     return _lib.cmark_node_set_list_start(node, start)
 
 
+def node_get_list_tight(node):
+    """Return 1 if node is a tight list.
+
+    Returns
+    -------
+    int
+        ``1`` if node is a tight list, ``0`` otherwise.
+
+    """
+    return _lib.cmark_node_get_list_tight(node)
+
+
+def node_set_list_tight(node, tight):
+    """Set tightness of list.
+
+    Parameters
+    ----------
+    node
+        List.
+    tight: int
+        ``1`` for tight, ``0`` for loose.
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_set_list_tight(node, tight)
+
+
 def iter_new(root):
     """Create new "iterator" starting at root node.
 

@@ -141,6 +141,8 @@ cmark_delim_type cmark_node_get_list_delim(cmark_node *node);
 int cmark_node_set_list_delim(cmark_node *node, cmark_delim_type delim);
 int cmark_node_get_list_start(cmark_node *node);
 int cmark_node_set_list_start(cmark_node *node, int start);
+int cmark_node_get_list_tight(cmark_node *node);
+int cmark_node_set_list_tight(cmark_node *node, int tight);
 
 char *cmark_render_commonmark(cmark_node *root, int options, int width);
 char *cmark_render_xml(cmark_node *root, int options);

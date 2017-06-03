@@ -26,6 +26,8 @@ Low-level API
 .. autofunction:: node_set_list_delim
 .. autofunction:: node_get_list_start
 .. autofunction:: node_set_list_start
+.. autofunction:: node_get_list_tight
+.. autofunction:: node_set_list_tight
 
 Tree traversal
 --------------

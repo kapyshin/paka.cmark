@@ -526,6 +526,47 @@ class ListStartTest(unittest.TestCase):
         self.check(node, 9)
 
 
+class ListTightTest(unittest.TestCase):
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    def check(self, node, expected):
+        self.assertEqual(
+            self.mod.node_get_list_tight(node), expected)
+
+    @expect_first_child("one two")
+    def test_non_list(self, node):
+        self.check(node, 0)
+
+    @expect_first_child("""\
+        * one
+
+        * two
+        """)
+    def test_loose(self, node):
+        self.check(node, 0)
+
+    @expect_first_child("""\
+        * one
+        * two
+        """)
+    def test_tight(self, node):
+        self.check(node, 1)
+
+    @expect_first_child("""\
+        * one
+
+        * two
+        """)
+    def test_setting(self, node):
+        self.check(node, 0)
+        assert self.mod.node_set_list_tight(node, 1) == 1
+        self.check(node, 1)
+
+
 class HelpersTest(unittest.TestCase):
 
     def setUp(self):
