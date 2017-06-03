@@ -486,6 +486,78 @@ def node_set_list_tight(node, tight):
     return _lib.cmark_node_set_list_tight(node, tight)
 
 
+@_nullable
+def node_get_url(node):
+    """Return URL of image or link, or None.
+
+    .. hint::
+
+        Use :py:func:`text_from_c` to convert value returned
+        by this function into text.
+
+    """
+    return _lib.cmark_node_get_url(node)
+
+
+def node_set_url(node, url):
+    """Set URL of image or link.
+
+    Parameters
+    ----------
+    node
+        Image or link.
+    url: bytes
+        New URL.
+
+        .. hint::
+
+            Use :py:func:`text_to_c` to convert text into bytes.
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_set_url(node, url)
+
+
+@_nullable
+def node_get_title(node):
+    """Return title of image or link, or None.
+
+    .. hint::
+
+        Use :py:func:`text_from_c` to convert value returned
+        by this function into text.
+
+    """
+    return _lib.cmark_node_get_title(node)
+
+
+def node_set_title(node, title):
+    """Set title of image or link.
+
+    Parameters
+    ----------
+    node
+        Image or link.
+    title: bytes
+        New title.
+
+        .. hint::
+
+            Use :py:func:`text_to_c` to convert text into bytes.
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_set_title(node, title)
+
+
 def iter_new(root):
     """Create new "iterator" starting at root node.
 

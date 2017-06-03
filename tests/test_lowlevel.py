@@ -567,6 +567,94 @@ class ListTightTest(unittest.TestCase):
         self.check(node, 1)
 
 
+class UrlTest(unittest.TestCase):
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    def check(self, node, expected):
+        self.assertEqual(
+            self.mod.text_from_c(self.mod.node_get_url(node)),
+            expected)
+
+    @expect_first_child("[text](//example.org/link/)")
+    def test_link(self, parent_node):
+        node = self.mod.node_first_child(parent_node)
+        self.check(node, "//example.org/link/")
+
+    @expect_first_child("![image](//example.org/image/)")
+    def test_image(self, parent_node):
+        node = self.mod.node_first_child(parent_node)
+        self.check(node, "//example.org/image/")
+
+    @expect_first_child("just paragraph")
+    def test_other_kind_of_node(self, node):
+        self.assertIsNone(self.mod.node_get_url(node))
+        self.check(node, "")
+
+    @expect_first_child("[text](//example.org/link/)")
+    def test_setting_for_link(self, parent_node):
+        node = self.mod.node_first_child(parent_node)
+        self.check(node, "//example.org/link/")
+        assert self.mod.node_set_url(
+            node, self.mod.text_to_c("//example.org/new/")) == 1
+        self.check(node, "//example.org/new/")
+
+    @expect_first_child("![image](//example.org/image/)")
+    def test_setting_for_image(self, parent_node):
+        node = self.mod.node_first_child(parent_node)
+        self.check(node, "//example.org/image/")
+        assert self.mod.node_set_url(
+            node, self.mod.text_to_c("//example.org/other/")) == 1
+        self.check(node, "//example.org/other/")
+
+
+class TitleTest(unittest.TestCase):
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    def check(self, node, expected):
+        self.assertEqual(
+            self.mod.text_from_c(self.mod.node_get_title(node)),
+            expected)
+
+    @expect_first_child("[text](//example.org/link/ \"link title\")")
+    def test_link(self, parent_node):
+        node = self.mod.node_first_child(parent_node)
+        self.check(node, "link title")
+
+    @expect_first_child("![text](//example.org/image/ \"image title\")")
+    def test_image(self, parent_node):
+        node = self.mod.node_first_child(parent_node)
+        self.check(node, "image title")
+
+    @expect_first_child("just paragraph")
+    def test_other_kind_of_node(self, node):
+        self.assertIsNone(self.mod.node_get_title(node))
+        self.check(node, "")
+
+    @expect_first_child("[text](//example.org/link/ \"link title\")")
+    def test_setting_for_link(self, parent_node):
+        node = self.mod.node_first_child(parent_node)
+        self.check(node, "link title")
+        assert self.mod.node_set_title(
+            node, self.mod.text_to_c("completely different")) == 1
+        self.check(node, "completely different")
+
+    @expect_first_child("![text](//example.org/image/ \"image title\")")
+    def test_setting_for_image(self, parent_node):
+        node = self.mod.node_first_child(parent_node)
+        self.check(node, "image title")
+        assert self.mod.node_set_title(
+            node, self.mod.text_to_c("just an image")) == 1
+        self.check(node, "just an image")
+
+
 class HelpersTest(unittest.TestCase):
 
     def setUp(self):

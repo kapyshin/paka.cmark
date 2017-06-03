@@ -28,6 +28,10 @@ Low-level API
 .. autofunction:: node_set_list_start
 .. autofunction:: node_get_list_tight
 .. autofunction:: node_set_list_tight
+.. autofunction:: node_get_url
+.. autofunction:: node_set_url
+.. autofunction:: node_get_title
+.. autofunction:: node_set_title
 
 Tree traversal
 --------------
