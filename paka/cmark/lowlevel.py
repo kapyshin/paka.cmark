@@ -558,6 +558,54 @@ def node_set_title(node, title):
     return _lib.cmark_node_set_title(node, title)
 
 
+def node_get_start_line(node):
+    """Return line on which node begins.
+
+    Returns
+    -------
+    int
+        Line number (starts from ``1``).
+
+    """
+    return _lib.cmark_node_get_start_line(node)
+
+
+def node_get_start_column(node):
+    """Return column at which node begins.
+
+    Returns
+    -------
+    int
+        Column number (starts from ``1``).
+
+    """
+    return _lib.cmark_node_get_start_column(node)
+
+
+def node_get_end_line(node):
+    """Return line on which node ends.
+
+    Returns
+    -------
+    int
+        Line number (starts from ``1``).
+
+    """
+    return _lib.cmark_node_get_end_line(node)
+
+
+def node_get_end_column(node):
+    """Return column at which node ends.
+
+    Returns
+    -------
+    int
+        Column number (starts from ``1``).
+
+    """
+    return _lib.cmark_node_get_end_column(node)
+
+
 def iter_new(root):
     """Create new "iterator" starting at root node.
 

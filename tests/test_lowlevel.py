@@ -655,6 +655,55 @@ class TitleTest(unittest.TestCase):
         self.check(node, "just an image")
 
 
+class LineAndColumnTest(unittest.TestCase):
+    SAMPLE = """\
+        No such file or directory.
+        Command not found.
+        rm -rf.
+
+        Headache.
+        Touchpad does not work.
+        Don't sleep on the laptop.
+        """
+
+    def setUp(self):
+        from paka.cmark import lowlevel
+
+        self.mod = lowlevel
+
+    def get_info(self, root, expected_node_types):
+        iter_ = self.mod.iter_new(root)
+        ev_type = None
+        try:
+            while ev_type != self.mod.EVENT_DONE:
+                ev_type = self.mod.iter_next(iter_)
+                if ev_type != self.mod.EVENT_ENTER:
+                    continue
+                node = self.mod.iter_get_node(iter_)
+                node_type = self.mod.node_get_type(node)
+                if node_type not in expected_node_types:
+                    continue
+                yield (
+                    self.mod.text_from_c(
+                        self.mod.node_get_type_string(node)),
+                    self.mod.node_get_start_line(node),
+                    self.mod.node_get_start_column(node),
+                    self.mod.node_get_end_line(node),
+                    self.mod.node_get_end_column(node))
+        finally:
+            self.mod.iter_free(iter_)
+
+    @expect_root(SAMPLE)
+    def runTest(self, root):
+        expected_types = {self.mod.NODE_DOCUMENT, self.mod.NODE_PARAGRAPH}
+        expected = (
+            ("document", 1, 1, 7, 26),
+            ("paragraph", 1, 1, 3, 7),
+            ("paragraph", 5, 1, 7, 26))
+        self.assertEqual(
+            tuple(self.get_info(root, expected_types)), expected)
+
+
 class HelpersTest(unittest.TestCase):
 
     def setUp(self):

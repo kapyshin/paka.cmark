@@ -147,6 +147,10 @@ const char *cmark_node_get_url(cmark_node *node);
 int cmark_node_set_url(cmark_node *node, const char *url);
 const char *cmark_node_get_title(cmark_node *node);
 int cmark_node_set_title(cmark_node *node, const char *title);
+int cmark_node_get_start_line(cmark_node *node);
+int cmark_node_get_start_column(cmark_node *node);
+int cmark_node_get_end_line(cmark_node *node);
+int cmark_node_get_end_column(cmark_node *node);
 
 char *cmark_render_commonmark(cmark_node *root, int options, int width);
 char *cmark_render_xml(cmark_node *root, int options);

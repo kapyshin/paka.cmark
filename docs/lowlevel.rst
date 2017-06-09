@@ -32,6 +32,10 @@ Low-level API
 .. autofunction:: node_set_url
 .. autofunction:: node_get_title
 .. autofunction:: node_set_title
+.. autofunction:: node_get_start_line
+.. autofunction:: node_get_start_column
+.. autofunction:: node_get_end_line
+.. autofunction:: node_get_end_column
 
 Tree traversal
 --------------
