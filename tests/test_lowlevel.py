@@ -3,12 +3,11 @@
 from __future__ import unicode_literals
 
 import textwrap
-import unittest
 
-from testutils import expect_root, expect_first_child
+from testutils import LowlevelTestCase, expect_root, expect_first_child
 
 
-class IterationWithReplacementTest(unittest.TestCase):
+class IterationWithReplacementTest(LowlevelTestCase):
     SAMPLE = textwrap.dedent("""\
         Проверяем *CommonMark*.
 
@@ -66,11 +65,6 @@ class IterationWithReplacementTest(unittest.TestCase):
         </code></pre>
         """)
 
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
-
     def _substitute_code_block_node(self, old_node):
         contents = self.mod.text_to_c(
             self.NEW_CODE_BLOCK_TEMPLATE.format(
@@ -113,7 +107,7 @@ class IterationWithReplacementTest(unittest.TestCase):
         self.assertEqual(result, self.EXPECTED)
 
 
-class IterationTest(unittest.TestCase):
+class IterationTest(LowlevelTestCase):
     SAMPLE = """\
         test1
 
@@ -122,11 +116,6 @@ class IterationTest(unittest.TestCase):
 
         test3
         """
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
 
     @expect_root(SAMPLE)
     def test_get_root(self, root):
@@ -178,12 +167,7 @@ class IterationTest(unittest.TestCase):
             self.mod.iter_free(iter_)
 
 
-class ListTypeTest(unittest.TestCase):
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
+class ListTypeTest(LowlevelTestCase):
 
     def check(self, source, expected, preparer=lambda node: None):
         text_bytes = self.mod.text_to_c(source)
@@ -229,7 +213,7 @@ class ListTypeTest(unittest.TestCase):
         self.check(source, self.mod.ORDERED_LIST, preparer=_prepare_node)
 
 
-class TreeTraversalTest(unittest.TestCase):
+class TreeTraversalTest(LowlevelTestCase):
     SAMPLE = textwrap.dedent("""\
         > Hello, Traversal!
 
@@ -237,11 +221,6 @@ class TreeTraversalTest(unittest.TestCase):
         * b
         * c
         """)
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
 
     @expect_root(SAMPLE)
     def test_next_exists(self, root):
@@ -292,13 +271,8 @@ class TreeTraversalTest(unittest.TestCase):
             getter(getter(getter(getter(getter(root))))))
 
 
-class FenceInfoTest(unittest.TestCase):
+class FenceInfoTest(LowlevelTestCase):
     INFO = "something-interesting-here"
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
 
     def set_fence_info(self, node):
         return self.mod.node_set_fence_info(
@@ -326,13 +300,8 @@ class FenceInfoTest(unittest.TestCase):
             self.mod.node_free(node)
 
 
-class LiteralTest(unittest.TestCase):
+class LiteralTest(LowlevelTestCase):
     CONTENTS = "here is some exciting new contents"
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
 
     def set_literal(self, node):
         return self.mod.node_set_literal(
@@ -364,12 +333,7 @@ class LiteralTest(unittest.TestCase):
             self.mod.node_free(node)
 
 
-class ListDelimiterTest(unittest.TestCase):
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
+class ListDelimiterTest(LowlevelTestCase):
 
     @expect_first_child("""\
         1) one
@@ -422,12 +386,7 @@ class ListDelimiterTest(unittest.TestCase):
             self.mod.PERIOD_DELIM)
 
 
-class NodeTypeStringTest(unittest.TestCase):
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
+class NodeTypeStringTest(LowlevelTestCase):
 
     def check(self, node, expected):
         self.assertEqual(
@@ -447,12 +406,7 @@ class NodeTypeStringTest(unittest.TestCase):
         self.check(node, "list")
 
 
-class HeadingLevelTest(unittest.TestCase):
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
+class HeadingLevelTest(LowlevelTestCase):
 
     def check(self, node, expected):
         self.assertEqual(
@@ -497,12 +451,7 @@ class HeadingLevelTest(unittest.TestCase):
         self.check(node, 5)
 
 
-class ListStartTest(unittest.TestCase):
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
+class ListStartTest(LowlevelTestCase):
 
     def check(self, node, expected):
         self.assertEqual(self.mod.node_get_list_start(node), expected)
@@ -526,12 +475,7 @@ class ListStartTest(unittest.TestCase):
         self.check(node, 9)
 
 
-class ListTightTest(unittest.TestCase):
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
+class ListTightTest(LowlevelTestCase):
 
     def check(self, node, expected):
         self.assertEqual(
@@ -567,12 +511,7 @@ class ListTightTest(unittest.TestCase):
         self.check(node, 1)
 
 
-class UrlTest(unittest.TestCase):
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
+class UrlTest(LowlevelTestCase):
 
     def check(self, node, expected):
         self.assertEqual(
@@ -611,12 +550,7 @@ class UrlTest(unittest.TestCase):
         self.check(node, "//example.org/other/")
 
 
-class TitleTest(unittest.TestCase):
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
+class TitleTest(LowlevelTestCase):
 
     def check(self, node, expected):
         self.assertEqual(
@@ -655,7 +589,7 @@ class TitleTest(unittest.TestCase):
         self.check(node, "just an image")
 
 
-class LineAndColumnTest(unittest.TestCase):
+class LineAndColumnTest(LowlevelTestCase):
     SAMPLE = """\
         No such file or directory.
         Command not found.
@@ -665,11 +599,6 @@ class LineAndColumnTest(unittest.TestCase):
         Touchpad does not work.
         Don't sleep on the laptop.
         """
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
 
     def get_info(self, root, expected_node_types):
         iter_ = self.mod.iter_new(root)
@@ -704,12 +633,7 @@ class LineAndColumnTest(unittest.TestCase):
             tuple(self.get_info(root, expected_types)), expected)
 
 
-class HelpersTest(unittest.TestCase):
-
-    def setUp(self):
-        from paka.cmark import lowlevel
-
-        self.mod = lowlevel
+class HelpersTest(LowlevelTestCase):
 
     def test_text_from_c_can_handle_none(self):
         self.assertEqual(self.mod.text_from_c(None), "")
