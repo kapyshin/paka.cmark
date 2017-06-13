@@ -672,6 +672,59 @@ def iter_reset(iter_, node, event):
     return _lib.cmark_iter_reset(iter_, node, event)
 
 
+def parser_new(options):
+    """Create parser object.
+
+    .. warning::
+
+        Returned parser object must be freed with :py:func:`parser_free`.
+
+    Parameters
+    ----------
+    options
+        See :ref:`options <options>`.
+
+    """
+    return _lib.cmark_parser_new(options)
+
+
+def parser_free(parser):
+    """Free memory allocated for parser object."""
+    _lib.cmark_parser_free(parser)
+
+
+def parser_feed(parser, buffer, length):
+    """Feed string to parser object.
+
+    Parameters
+    ----------
+    parser
+        Parser object.
+    buffer: bytes
+        String to "feed" to parser.
+
+        .. hint::
+
+            Use :py:func:`text_to_c` to convert text into bytes.
+
+    length: int
+        Length of ``buffer``.
+
+    """
+    _lib.cmark_parser_feed(parser, buffer, length)
+
+
+def parser_finish(parser):
+    """Finish parsing and return tree of nodes.
+
+    .. warning::
+
+        Returned tree of nodes must be freed with :py:func:`node_free`.
+
+    """
+    return _lib.cmark_parser_finish(parser)
+
+
 def markdown_to_html(buffer, length, options):
     """Render HTML from CommonMark.
 

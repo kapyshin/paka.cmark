@@ -110,6 +110,8 @@ typedef enum {
     CMARK_EVENT_EXIT
 } cmark_event_type;
 
+typedef struct cmark_parser cmark_parser;
+
 
 const char *cmark_version_string();
 
@@ -166,6 +168,11 @@ cmark_event_type cmark_iter_get_event_type(cmark_iter *iter);
 cmark_node *cmark_iter_get_root(cmark_iter *iter);
 void cmark_iter_reset(
     cmark_iter *iter, cmark_node *current, cmark_event_type event_type);
+
+cmark_parser *cmark_parser_new(int options);
+void cmark_parser_free(cmark_parser *parser);
+void cmark_parser_feed(cmark_parser *parser, const char *buffer, size_t len);
+cmark_node * cmark_parser_finish(cmark_parser *parser);
 """)
 
 

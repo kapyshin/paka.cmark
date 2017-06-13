@@ -633,6 +633,64 @@ class LineAndColumnTest(LowlevelTestCase):
             tuple(self.get_info(root, expected_types)), expected)
 
 
+class StreamingParserTest(LowlevelTestCase):
+    SAMPLE = textwrap.dedent("""\
+        Let's check that streaming parser emits node tree
+        that *looks* like one built by
+        [`simple`](http://example.org) parser.
+
+        To do this, we'll build **trace** for each of node
+        trees, and then compare (with `assertEqual`) them
+        as tuples.
+        """)
+
+    def get_trace(self, root):
+        def _gen(it):
+            ev_type = None
+            while ev_type != self.mod.EVENT_DONE:
+                ev_type = self.mod.iter_next(it)
+                if ev_type == self.mod.EVENT_ENTER:
+                    yield self.mod.text_from_c(
+                        self.mod.node_get_type_string(
+                            self.mod.iter_get_node(it)))
+
+        iter_ = self.mod.iter_new(root)
+        try:
+            for item in _gen(iter_):  # py27 (yield from)
+                yield item
+        finally:
+            self.mod.iter_free(iter_)
+
+    @expect_root(SAMPLE)
+    def test_side_by_side(self, simple_root):
+        parser = self.mod.parser_new(self.mod.OPT_DEFAULT)
+        try:
+            for line in self.SAMPLE.splitlines(True):  # py27 (kwarg)
+                buf = self.mod.text_to_c(line)
+                self.mod.parser_feed(parser, buf, len(buf))
+            streaming_root = self.mod.parser_finish(parser)
+        finally:
+            self.mod.parser_free(parser)
+        try:
+            simple_root_trace = tuple(self.get_trace(simple_root))
+            self.assertIn("link", simple_root_trace)
+            self.assertIn("code", simple_root_trace)
+            self.assertIn("paragraph", simple_root_trace)
+            self.assertEqual(
+                simple_root_trace,
+                tuple(self.get_trace(streaming_root)))
+        finally:
+            self.mod.node_free(streaming_root)
+
+    def test_nothing_fed(self):
+        parser = self.mod.parser_new(self.mod.OPT_DEFAULT)
+        try:
+            root = self.mod.parser_finish(parser)
+        finally:
+            self.mod.parser_free(parser)
+        self.assertEqual(tuple(self.get_trace(root)), ("document", ))
+
+
 class HelpersTest(LowlevelTestCase):
 
     def test_text_from_c_can_handle_none(self):

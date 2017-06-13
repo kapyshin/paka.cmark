@@ -37,6 +37,13 @@ Low-level API
 .. autofunction:: node_get_end_line
 .. autofunction:: node_get_end_column
 
+Parsing (streaming API)
+-----------------------
+.. autofunction:: parser_new
+.. autofunction:: parser_free
+.. autofunction:: parser_feed
+.. autofunction:: parser_finish
+
 Tree traversal
 --------------
 .. autofunction:: node_next
