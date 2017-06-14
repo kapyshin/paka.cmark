@@ -127,7 +127,13 @@ cmark_node *cmark_node_parent(cmark_node *node);
 cmark_node *cmark_node_first_child(cmark_node *node);
 cmark_node *cmark_node_last_child(cmark_node *node);
 
+void cmark_node_unlink(cmark_node *node);
+int cmark_node_insert_before(cmark_node *node, cmark_node *sibling);
+int cmark_node_insert_after(cmark_node *node, cmark_node *sibling);
 int cmark_node_replace(cmark_node *oldnode, cmark_node *newnode);
+int cmark_node_prepend_child(cmark_node *node, cmark_node *child);
+int cmark_node_append_child(cmark_node *node, cmark_node *child);
+void cmark_consolidate_text_nodes(cmark_node *root);
 
 cmark_node_type cmark_node_get_type(cmark_node *node);
 const char *cmark_node_get_type_string(cmark_node *node);

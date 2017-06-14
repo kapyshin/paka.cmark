@@ -236,6 +236,71 @@ def node_replace(old_node, new_node):
     return _lib.cmark_node_replace(old_node, new_node)
 
 
+def node_unlink(node):
+    """Unlink node from tree.
+
+    .. warning::
+
+        ``node`` is unlinked, but its memory still must be
+        freed with :py:func:`node_free`.
+
+    """
+    _lib.cmark_node_unlink(node)
+
+
+def node_insert_before(node, sibling):
+    """Insert sibling before node.
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_insert_before(node, sibling)
+
+
+def node_insert_after(node, sibling):
+    """Insert sibling after node.
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_insert_after(node, sibling)
+
+
+def node_prepend_child(node, child):
+    """Prepend child to children of node.
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_prepend_child(node, child)
+
+
+def node_append_child(node, child):
+    """Append child to children of node.
+
+    Returns
+    -------
+    int
+        ``1`` on success, ``0`` on failure.
+
+    """
+    return _lib.cmark_node_append_child(node, child)
+
+
+def consolidate_text_nodes(root):
+    """Merge adjacent text nodes in the tree."""
+    _lib.cmark_consolidate_text_nodes(root)
+
+
 def node_get_type(node):
     """Return type of node.
 

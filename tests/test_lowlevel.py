@@ -691,6 +691,133 @@ class StreamingParserTest(LowlevelTestCase):
         self.assertEqual(tuple(self.get_trace(root)), ("document", ))
 
 
+class TreeManipulationTest(LowlevelTestCase):
+
+    def check(self, root, expected):
+        result = self.mod.text_from_c(
+            self.mod.render_html(root, self.mod.OPT_DEFAULT))
+        self.assertEqual(result, expected)
+
+    @expect_root("Some text here.")
+    def test_unlink(self, root):
+        node = self.mod.node_first_child(root)
+        self.mod.node_unlink(node)
+        try:
+            self.check(root, "")
+        finally:
+            self.mod.node_free(node)
+
+    @expect_root("Insert before this.")
+    def test_insert_before(self, root):
+        existing_node = self.mod.node_first_child(root)
+
+        new_node = self.mod.node_new(self.mod.NODE_HTML_BLOCK)
+        try:
+            assert self.mod.node_set_literal(
+                new_node, self.mod.text_to_c("<p>test</p>")) == 1
+            assert self.mod.node_insert_before(existing_node, new_node) == 1
+        except Exception:
+            self.mod.node_free(new_node)
+            raise
+
+        self.check(root, "<p>test</p>\n<p>Insert before this.</p>\n")
+
+    @expect_root("Insert after this.")
+    def test_insert_after(self, root):
+        existing_node = self.mod.node_first_child(root)
+
+        new_node = self.mod.node_new(self.mod.NODE_HTML_BLOCK)
+        try:
+            assert self.mod.node_set_literal(
+                new_node, self.mod.text_to_c("<p>test</p>")) == 1
+            assert self.mod.node_insert_after(existing_node, new_node) == 1
+        except Exception:
+            self.mod.node_free(new_node)
+            raise
+
+        self.check(root, "<p>Insert after this.</p>\n<p>test</p>\n")
+
+    @expect_root("Replace this.")
+    def test_replace(self, root):
+        existing_node = self.mod.node_first_child(root)
+
+        new_node = self.mod.node_new(self.mod.NODE_HTML_BLOCK)
+        try:
+            assert self.mod.node_set_literal(
+                new_node, self.mod.text_to_c("<p>test</p>")) == 1
+            assert self.mod.node_replace(existing_node, new_node) == 1
+        except Exception:
+            self.mod.node_free(new_node)
+            raise
+
+        try:
+            self.check(root, "<p>test</p>\n")
+        finally:
+            self.mod.node_free(existing_node)
+
+    @expect_root("Add sibling before.")
+    def test_prepend_child(self, root):
+        new_node = self.mod.node_new(self.mod.NODE_HTML_BLOCK)
+        try:
+            assert self.mod.node_set_literal(
+                new_node, self.mod.text_to_c("<p>test</p>")) == 1
+            assert self.mod.node_prepend_child(root, new_node) == 1
+        except Exception:
+            self.mod.node_free(new_node)
+            raise
+
+        self.check(root, "<p>test</p>\n<p>Add sibling before.</p>\n")
+
+    @expect_root("Add sibling after.")
+    def test_append_child(self, root):
+        new_node = self.mod.node_new(self.mod.NODE_HTML_BLOCK)
+        try:
+            assert self.mod.node_set_literal(
+                new_node, self.mod.text_to_c("<p>test</p>")) == 1
+            assert self.mod.node_append_child(root, new_node) == 1
+        except Exception:
+            self.mod.node_free(new_node)
+            raise
+
+        self.check(root, "<p>Add sibling after.</p>\n<p>test</p>\n")
+
+    @expect_root("One.")
+    def test_consolidate_text_nodes(self, root):
+        def _count_text_nodes(root):
+            count = 0
+            iter_ = self.mod.iter_new(root)
+            try:
+                ev_type = None
+                while ev_type != self.mod.EVENT_DONE:
+                    ev_type = self.mod.iter_next(iter_)
+                    if ev_type == self.mod.EVENT_ENTER:
+                        node = self.mod.iter_get_node(iter_)
+                        if self.mod.node_get_type(node) != self.mod.NODE_TEXT:
+                            continue
+                        count += 1
+            finally:
+                self.mod.iter_free(iter_)
+            return count
+
+        self.assertEqual(_count_text_nodes(root), 1)
+
+        paragraph = self.mod.node_first_child(root)
+
+        new_node = self.mod.node_new(self.mod.NODE_TEXT)
+        try:
+            self.mod.node_set_literal(
+                new_node, self.mod.text_to_c(" Two.")) == 1
+            self.mod.node_append_child(paragraph, new_node) == 1
+        except Exception:
+            self.mod.node_free(new_node)
+            raise
+        self.assertEqual(_count_text_nodes(root), 2)
+
+        self.mod.consolidate_text_nodes(root)
+        self.assertEqual(_count_text_nodes(root), 1)
+        self.check(root, "<p>One. Two.</p>\n")
+
+
 class HelpersTest(LowlevelTestCase):
 
     def test_text_from_c_can_handle_none(self):
