@@ -115,7 +115,7 @@ def to_xml(text, sourcepos=False, smart=False):
     return _lowlevel.text_from_c(_lowlevel.render_xml(root, opts))
 
 
-def to_commonmark(text, breaks=False, width=0):
+def to_commonmark(text, breaks=False, width=0, smart=False):
     r"""Convert markup to CommonMark.
 
     Parameters
@@ -132,6 +132,8 @@ def to_commonmark(text, breaks=False, width=0):
         Wrap width of output by inserting line breaks (default is
         ``0``—no wrapping). Has no effect if ``breaks`` are set to be
         ``"hard"`` (e.g. with :py:attr:`LineBreaks.hard`).
+    smart: bool
+        Use :py:data:`~paka.cmark.lowlevel.OPT_SMART`.
 
     Returns
     -------
@@ -139,7 +141,8 @@ def to_commonmark(text, breaks=False, width=0):
         CommonMark
 
     """
-    opts = _add_breaks_to_opts(breaks, _lowlevel.OPT_DEFAULT)
+    opts = _add_smart_to_opts(
+        smart, _add_breaks_to_opts(breaks, _lowlevel.OPT_DEFAULT))
     text_bytes = _lowlevel.text_to_c(text)
     parsed = _lowlevel.parse_document(text_bytes, len(text_bytes), opts)
     root = _ffi.gc(parsed, _lowlevel.node_free)
