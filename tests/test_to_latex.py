@@ -16,7 +16,7 @@ class ToLatexTest(unittest.TestCase):
         "programming (OOP) only after learning it with Racket, which is "
         "usually characterized as “dialect of Scheme” (functional "
         "language).\nMaybe it has something to do with syntax not getting "
-        "on beginner’s way :)")
+        "on beginner’s way :)\n\nПроверка---\"test\" -- test.")
 
     def setUp(self):
         from paka.cmark import LineBreaks, to_latex
@@ -56,7 +56,8 @@ class ToLatexTest(unittest.TestCase):
             "(OOP) only after learning it with Racket, which is usually "
             "characterized as ``dialect of Scheme'' (functional language"
             "). Maybe it has something to do with syntax not "
-            "getting on beginner's way :)\n")
+            "getting on beginner's way :)\n\nПроверка-{}-{}-\\textquotedbl{}"
+            "test\\textquotedbl{} -{}- test.\n")
         self.check(self.SAMPLE, expected)
         self.check(self.SAMPLE, expected, breaks=False)
         self.check(self.SAMPLE, expected, breaks=False, width=0)
@@ -76,7 +77,8 @@ class ToLatexTest(unittest.TestCase):
             "characterized as ``dialect of Scheme'' (functional language"
             ").\\\\\n"
             "Maybe it has something to do with syntax not getting on "
-            "beginner's way :)\n")
+            "beginner's way :)\n\nПроверка-{}-{}-\\textquotedbl{}test"
+            "\\textquotedbl{} -{}- test.\n")
         self.check(self.SAMPLE, expected, breaks="hard")
         self.check(self.SAMPLE, expected, breaks=self.line_breaks.hard)
         self.check(
@@ -97,7 +99,8 @@ class ToLatexTest(unittest.TestCase):
             "\nRacket,\nwhich\nis\nusually\ncharacterized\nas\n"
             "``dialect\nof\nScheme''\n(functional\nlanguage).\\\\\n"
             "Maybe\nit has\nsomething\nto do\nwith\nsyntax\nnot"
-            "\ngetting\non\nbeginner's\nway :)\n")
+            "\ngetting\non\nbeginner's\nway\n:)\n\nПроверка-{}-{}-"
+            "\\textquotedbl{}test\\textquotedbl{}\n-{}-\ntest.\n")
         width = 7
         self.check(self.SAMPLE, expected, breaks="hard", width=width)
         self.check(
@@ -116,7 +119,8 @@ class ToLatexTest(unittest.TestCase):
             "(OOP) only after learning it with Racket, which is usually "
             "characterized as ``dialect of Scheme'' (functional "
             "language).\nMaybe it has something to do with syntax not "
-            "getting on beginner's way :)\n")
+            "getting on beginner's way :)\n\nПроверка-{}-{}-\\textquotedbl{}"
+            "test\\textquotedbl{} -{}- test.\n")
         self.check(self.SAMPLE, expected, breaks=True)
         self.check(self.SAMPLE, expected, breaks="soft")
         self.check(self.SAMPLE, expected, breaks=self.line_breaks.soft)
@@ -136,9 +140,28 @@ class ToLatexTest(unittest.TestCase):
             "\nRacket,\nwhich\nis\nusually\ncharacterized\nas\n"
             "``dialect\nof\nScheme\''\n(functional\nlanguage).\n"
             "Maybe\nit has\nsomething\nto do\nwith\nsyntax\nnot"
-            "\ngetting\non\nbeginner's\nway :)\n")
+            "\ngetting\non\nbeginner's\nway\n:)\n\nПроверка-{}-{}-"
+            "\\textquotedbl{}test\\textquotedbl{}\n-{}-\ntest.\n")
         width = 7
         self.check(self.SAMPLE, expected, breaks=True, width=width)
         self.check(self.SAMPLE, expected, breaks="soft", width=width)
         self.check(
             self.SAMPLE, expected, breaks=self.line_breaks.soft, width=width)
+
+    def test_no_breaks_and_smart(self):
+        expected = (
+            "My humble mentoring experience tells me something about "
+            "learning programming. For complete beginners, it may be easier "
+            "to learn some kind of Lisp, and then transition to Python for "
+            "more ``real world'' code. Of course, various Lisps are "
+            "used in production in various companies in various projects, "
+            "but Python is just more popular.\n\n"
+            "One mentoree really understood object-oriented programming "
+            "(OOP) only after learning it with Racket, which is usually "
+            "characterized as ``dialect of Scheme'' (functional language"
+            "). Maybe it has something to do with syntax not "
+            "getting on beginner's way :)\n\nПроверка---``test'' -- test.\n")
+        self.check(self.SAMPLE, expected, smart=True)
+        self.check(self.SAMPLE, expected, breaks=False, smart=True)
+        self.check(self.SAMPLE, expected, breaks=False, width=0, smart=True)
+        self.check(self.SAMPLE, expected, breaks=False, width=7, smart=True)
