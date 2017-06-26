@@ -9,7 +9,8 @@ import unittest
 class ToXMLTest(unittest.TestCase):
     SAMPLE = (
         "Проверяем *CommonMark*.\n\nВставляем `код`.\nИ другие "
-        "[штуки](javascript:pwned).\n\n<p>Test of <em>XML</em>.</p>")
+        "[штуки](javascript:pwned).\n\n<p>Test of <em>XML</em>.</p>\n\n"
+        "Проверка---\"test\" -- test.")
 
     def setUp(self):
         from paka.cmark import to_xml
@@ -64,6 +65,9 @@ class ToXMLTest(unittest.TestCase):
               </paragraph>
               <html_block>&lt;p&gt;Test of &lt;em&gt;XML&lt;/em&gt;.&lt;/p&gt;
             </html_block>
+              <paragraph>
+                <text>Проверка---&quot;test&quot; -- test.</text>
+              </paragraph>
             </document>
             """)
         self.check(self.SAMPLE, expected)
@@ -73,7 +77,7 @@ class ToXMLTest(unittest.TestCase):
         expected = textwrap.dedent("""\
             <?xml version="1.0" encoding="UTF-8"?>
             <!DOCTYPE document SYSTEM "CommonMark.dtd">
-            <document sourcepos="1:1-6:28" xmlns="http://commonmark.org/xml/1.0">
+            <document sourcepos="1:1-8:34" xmlns="http://commonmark.org/xml/1.0">
               <paragraph sourcepos="1:1-1:32">
                 <text>Проверяем </text>
                 <emph>
@@ -94,6 +98,41 @@ class ToXMLTest(unittest.TestCase):
               </paragraph>
               <html_block sourcepos="6:1-6:28">&lt;p&gt;Test of &lt;em&gt;XML&lt;/em&gt;.&lt;/p&gt;
             </html_block>
+              <paragraph sourcepos="8:1-8:34">
+                <text>Проверка---&quot;test&quot; -- test.</text>
+              </paragraph>
             </document>
             """)
         self.check(self.SAMPLE, expected, sourcepos=True)
+
+    def test_smart(self):
+        expected = textwrap.dedent("""\
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE document SYSTEM "CommonMark.dtd">
+            <document xmlns="http://commonmark.org/xml/1.0">
+              <paragraph>
+                <text>Проверяем </text>
+                <emph>
+                  <text>CommonMark</text>
+                </emph>
+                <text>.</text>
+              </paragraph>
+              <paragraph>
+                <text>Вставляем </text>
+                <code>код</code>
+                <text>.</text>
+                <softbreak />
+                <text>И другие </text>
+                <link destination="javascript:pwned" title="">
+                  <text>штуки</text>
+                </link>
+                <text>.</text>
+              </paragraph>
+              <html_block>&lt;p&gt;Test of &lt;em&gt;XML&lt;/em&gt;.&lt;/p&gt;
+            </html_block>
+              <paragraph>
+                <text>Проверка—“test” – test.</text>
+              </paragraph>
+            </document>
+            """)
+        self.check(self.SAMPLE, expected, smart=True)

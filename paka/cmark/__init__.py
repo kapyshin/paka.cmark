@@ -88,7 +88,7 @@ def to_html(text, breaks=False, safe=False, sourcepos=False, smart=False):
         _lowlevel.markdown_to_html(text_bytes, len(text_bytes), opts))
 
 
-def to_xml(text, sourcepos=False):
+def to_xml(text, sourcepos=False, smart=False):
     """Convert markup to XML.
 
     Parameters
@@ -98,6 +98,8 @@ def to_xml(text, sourcepos=False):
     sourcepos: bool
         If ``True``, add ``sourcepos`` attribute to all block elements
         (that is, use ``CMARK_OPT_SOURCEPOS``).
+    smart: bool
+        Use :py:data:`~paka.cmark.lowlevel.OPT_SMART`.
 
     Returns
     -------
@@ -105,7 +107,8 @@ def to_xml(text, sourcepos=False):
         XML
 
     """
-    opts = _add_sourcepos_to_opts(sourcepos, _lowlevel.OPT_DEFAULT)
+    opts = _add_smart_to_opts(
+        smart, _add_sourcepos_to_opts(sourcepos, _lowlevel.OPT_DEFAULT))
     text_bytes = _lowlevel.text_to_c(text)
     parsed = _lowlevel.parse_document(text_bytes, len(text_bytes), opts)
     root = _ffi.gc(parsed, _lowlevel.node_free)
