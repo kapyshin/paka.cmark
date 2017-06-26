@@ -150,7 +150,7 @@ def to_commonmark(text, breaks=False, width=0, smart=False):
         _lowlevel.render_commonmark(root, opts, width))
 
 
-def to_man(text, breaks=False, width=0):
+def to_man(text, breaks=False, width=0, smart=False):
     r"""Convert markup to groff man page.
 
     Parameters
@@ -167,6 +167,8 @@ def to_man(text, breaks=False, width=0):
     width: int
         Wrap width of output by inserting line breaks (default is
         ``0``—no wrapping). Has no effect if ``breaks`` are ``False``.
+    smart: bool
+        Use :py:data:`~paka.cmark.lowlevel.OPT_SMART`.
 
     Returns
     -------
@@ -174,7 +176,8 @@ def to_man(text, breaks=False, width=0):
         Page without the header.
 
     """
-    opts = _add_breaks_to_opts(breaks, _lowlevel.OPT_DEFAULT)
+    opts = _add_smart_to_opts(
+        smart, _add_breaks_to_opts(breaks, _lowlevel.OPT_DEFAULT))
     text_bytes = _lowlevel.text_to_c(text)
     parsed = _lowlevel.parse_document(text_bytes, len(text_bytes), opts)
     root = _ffi.gc(parsed, _lowlevel.node_free)
