@@ -27,6 +27,8 @@ OPT_SOURCEPOS = _lib.CMARK_OPT_SOURCEPOS
 """Render with “sourcepos” information."""
 OPT_SAFE = _lib.CMARK_OPT_SAFE
 """Suppress raw HTML and unsafe links while rendering."""
+OPT_SMART = _lib.CMARK_OPT_SMART
+"""Render straight quotes as curly, ``---`` as em dash, ``--`` as en dash."""
 
 EVENT_ENTER = _lib.CMARK_EVENT_ENTER
 """Entering node."""

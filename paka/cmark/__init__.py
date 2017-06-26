@@ -33,6 +33,12 @@ def _add_sourcepos_to_opts(sourcepos, opts):
     return opts
 
 
+def _add_smart_to_opts(smart, opts):
+    if smart:
+        opts |= _lowlevel.OPT_SMART
+    return opts
+
+
 def get_version():
     """Return version of underlying C library.
 
@@ -45,7 +51,7 @@ def get_version():
     return _lowlevel.text_from_c(_lowlevel.version_string())
 
 
-def to_html(text, breaks=False, safe=False, sourcepos=False):
+def to_html(text, breaks=False, safe=False, sourcepos=False, smart=False):
     r"""Convert markup to HTML.
 
     Parameters
@@ -63,6 +69,8 @@ def to_html(text, breaks=False, safe=False, sourcepos=False):
     sourcepos: bool
         If ``True``, add ``data-sourcepos`` attribute to block elements
         (that is, use ``CMARK_OPT_SOURCEPOS``).
+    smart: bool
+        Use :py:data:`~paka.cmark.lowlevel.OPT_SMART`.
 
     Returns
     -------
@@ -72,6 +80,7 @@ def to_html(text, breaks=False, safe=False, sourcepos=False):
     """
     opts = _add_sourcepos_to_opts(
         sourcepos, _add_breaks_to_opts(breaks, _lowlevel.OPT_DEFAULT))
+    opts = _add_smart_to_opts(smart, opts)
     if safe:
         opts |= _lowlevel.OPT_SAFE
     text_bytes = _lowlevel.text_to_c(text)
