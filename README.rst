@@ -15,7 +15,7 @@ Features
   (and sources of the former are regularly updated according to upstream)
 - supported output: HTML, XML, CommonMark, man, LaTeX
 - supported options: ``CMARK_OPT_SAFE``, ``CMARK_OPT_NOBREAKS``,
-  ``CMARK_OPT_HARDBREAKS``, ``CMARK_OPT_SOURCEPOS``
+  ``CMARK_OPT_HARDBREAKS``, ``CMARK_OPT_SOURCEPOS``, ``CMARK_OPT_SMART``
 - unlike ``libcmark``—underlying C library—``paka.cmark`` uses
   ``CMARK_OPT_NOBREAKS`` by default (``breaks`` argument allows to control
   line break rendering)
