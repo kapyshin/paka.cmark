@@ -16,7 +16,7 @@ setuptools.setup(
         "Very lightweight CFFI-based Python bindings to cmark library"
         " (CommonMark implementation in C)."),
     long_description=_get_long_description(),
-    version="1.32.0",
+    version="1.33.0",
     packages=setuptools.find_packages(),
     setup_requires=["cffi>=1.0.0"],
     install_requires=["cffi>=1.0.0"],
