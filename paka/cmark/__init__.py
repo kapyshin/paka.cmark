@@ -1,6 +1,6 @@
 """Lightweight `cmark`_ wrapper.
 
-.. _cmark: https://github.com/jgm/cmark
+.. _cmark: https://github.com/commonmark/cmark
 
 """
 

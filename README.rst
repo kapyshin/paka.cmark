@@ -121,5 +121,5 @@ Run code checkers:
     $ tox -e checks
 
 
-.. _cmark: https://github.com/jgm/cmark
+.. _cmark: https://github.com/commonmark/cmark
 .. _CFFI: https://pypi.python.org/pypi/cffi
