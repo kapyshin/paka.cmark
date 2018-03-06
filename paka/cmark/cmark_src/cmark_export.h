@@ -9,20 +9,36 @@
 #  ifndef CMARK_EXPORT
 #    ifdef libcmark_EXPORTS
         /* We are building this library */
-#      define CMARK_EXPORT __attribute__((visibility("default")))
+#      ifdef _MSC_VER
+#        define CMARK_EXPORT __declspec(dllexport)
+#      else
+#        define CMARK_EXPORT __attribute__((visibility("default")))
+#      endif
 #    else
         /* We are using this library */
-#      define CMARK_EXPORT __attribute__((visibility("default")))
+#      ifdef _MSC_VER
+#        define CMARK_EXPORT __declspec(dllimport)
+#      else
+#        define CMARK_EXPORT __attribute__((visibility("default")))
+#      endif
 #    endif
 #  endif
 
 #  ifndef CMARK_NO_EXPORT
-#    define CMARK_NO_EXPORT __attribute__((visibility("hidden")))
+#    ifdef _MSC_VER
+#      define CMARK_NO_EXPORT
+#    else
+#      define CMARK_NO_EXPORT __attribute__((visibility("hidden")))
+#    endif
 #  endif
 #endif
 
 #ifndef CMARK_DEPRECATED
-#  define CMARK_DEPRECATED __attribute__ ((__deprecated__))
+#  ifdef _MSC_VER
+#    define CMARK_DEPRECATED __declspec(deprecated)
+#  else
+#    define CMARK_DEPRECATED __attribute__((__deprecated__))
+#  endif
 #endif
 
 #ifndef CMARK_DEPRECATED_EXPORT
