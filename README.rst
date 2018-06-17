@@ -67,7 +67,7 @@ Render CommonMark with ``CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS``:
 
 Installation
 ------------
-Library is `available on PyPI <https://pypi.python.org/pypi/paka.cmark>`_,
+Library is `available on PyPI <https://pypi.org/project/paka.cmark/>`_,
 you can use ``pip`` for installation:
 
 .. code-block:: console
@@ -122,4 +122,4 @@ Run code checkers:
 
 
 .. _cmark: https://github.com/commonmark/cmark
-.. _CFFI: https://pypi.python.org/pypi/cffi
+.. _CFFI: https://pypi.org/project/cffi/
