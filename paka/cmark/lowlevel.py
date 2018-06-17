@@ -110,6 +110,7 @@ def _nullable(func):
         result = func(*args, **kwargs)
         if result != _ffi.NULL:
             return result
+        return None
     return _wrapper
 
 
