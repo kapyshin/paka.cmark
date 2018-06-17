@@ -615,22 +615,24 @@ static void S_find_first_nonspace(cmark_parser *parser, cmark_chunk *input) {
   char c;
   int chars_to_tab = TAB_STOP - (parser->column % TAB_STOP);
 
-  parser->first_nonspace = parser->offset;
-  parser->first_nonspace_column = parser->column;
-  while ((c = peek_at(input, parser->first_nonspace))) {
-    if (c == ' ') {
-      parser->first_nonspace += 1;
-      parser->first_nonspace_column += 1;
-      chars_to_tab = chars_to_tab - 1;
-      if (chars_to_tab == 0) {
+  if (parser->first_nonspace <= parser->offset) {
+    parser->first_nonspace = parser->offset;
+    parser->first_nonspace_column = parser->column;
+    while ((c = peek_at(input, parser->first_nonspace))) {
+      if (c == ' ') {
+        parser->first_nonspace += 1;
+        parser->first_nonspace_column += 1;
+        chars_to_tab = chars_to_tab - 1;
+        if (chars_to_tab == 0) {
+          chars_to_tab = TAB_STOP;
+        }
+      } else if (c == '\t') {
+        parser->first_nonspace += 1;
+        parser->first_nonspace_column += chars_to_tab;
         chars_to_tab = TAB_STOP;
+      } else {
+        break;
       }
-    } else if (c == '\t') {
-      parser->first_nonspace += 1;
-      parser->first_nonspace_column += chars_to_tab;
-      chars_to_tab = TAB_STOP;
-    } else {
-      break;
     }
   }
 
@@ -904,6 +906,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
 
       (*container)->as.heading.level = level;
       (*container)->as.heading.setext = false;
+      (*container)->internal_offset = matched;
 
     } else if (!indented && (matched = scan_open_code_fence(
                                  input, parser->first_nonspace))) {
@@ -944,6 +947,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if ((!indented || cont_type == CMARK_NODE_LIST) &&
+	       parser->indent < 4 &&
                (matched = parse_list_marker(
                     parser->mem, input, parser->first_nonspace,
                     (*container)->type == CMARK_NODE_PARAGRAPH, &data))) {
@@ -1158,6 +1162,9 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
   parser->offset = 0;
   parser->column = 0;
+  parser->first_nonspace = 0;
+  parser->first_nonspace_column = 0;
+  parser->indent = 0;
   parser->blank = false;
   parser->partially_consumed_tab = false;
 
