@@ -8,6 +8,7 @@ from paka.cmark._cmark import ffi as _ffi
 from paka.cmark import lowlevel as _lowlevel
 
 
+# pylint: disable=useless-object-inheritance
 class LineBreaks(object):  # pylint: disable=too-few-public-methods
     """How line breaks will be rendered."""
 
