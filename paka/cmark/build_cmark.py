@@ -180,6 +180,8 @@ cmark_parser *cmark_parser_new(int options);
 void cmark_parser_free(cmark_parser *parser);
 void cmark_parser_feed(cmark_parser *parser, const char *buffer, size_t len);
 cmark_node * cmark_parser_finish(cmark_parser *parser);
+
+void free(void *ptr);
 """)
 
 

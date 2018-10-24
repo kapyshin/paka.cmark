@@ -101,7 +101,8 @@ class IterationWithReplacementTest(LowlevelTestCase):
         try:
             self._substitute_code_blocks(root)
             result = self.mod.text_from_c(
-                self.mod.render_html(root, self.mod.OPT_DEFAULT))
+                self.mod.render_html(root, self.mod.OPT_DEFAULT),
+                free=True)
         finally:
             self.mod.node_free(root)
         self.assertEqual(result, self.EXPECTED)
@@ -695,7 +696,8 @@ class TreeManipulationTest(LowlevelTestCase):
 
     def check(self, root, expected):
         result = self.mod.text_from_c(
-            self.mod.render_html(root, self.mod.OPT_DEFAULT))
+            self.mod.render_html(root, self.mod.OPT_DEFAULT),
+            free=True)
         self.assertEqual(result, expected)
 
     @expect_root("Some text here.")

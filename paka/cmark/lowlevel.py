@@ -801,6 +801,11 @@ def markdown_to_html(buffer, length, options):
         Use :py:func:`text_from_c` to convert value returned
         by this function into text.
 
+    .. warning::
+
+        Returned C string must be freed, use `free` parameter
+        of :py:func:`text_from_c` for that.
+
     Parameters
     ----------
     buffer: bytes
@@ -827,6 +832,11 @@ def render_html(root, options):
         Use :py:func:`text_from_c` to convert value returned
         by this function into text.
 
+    .. warning::
+
+        Returned C string must be freed, use `free` parameter
+        of :py:func:`text_from_c` for that.
+
     Parameters
     ----------
     root
@@ -846,6 +856,11 @@ def render_xml(root, options):
         Use :py:func:`text_from_c` to convert value returned
         by this function into text.
 
+    .. warning::
+
+        Returned C string must be freed, use `free` parameter
+        of :py:func:`text_from_c` for that.
+
     Parameters
     ----------
     root
@@ -864,6 +879,11 @@ def render_man(root, options, width):
 
         Use :py:func:`text_from_c` to convert value returned
         by this function into text.
+
+    .. warning::
+
+        Returned C string must be freed, use `free` parameter
+        of :py:func:`text_from_c` for that.
 
     Parameters
     ----------
@@ -886,6 +906,11 @@ def render_commonmark(root, options, width):
         Use :py:func:`text_from_c` to convert value returned
         by this function into text.
 
+    .. warning::
+
+        Returned C string must be freed, use `free` parameter
+        of :py:func:`text_from_c` for that.
+
     Parameters
     ----------
     root
@@ -907,6 +932,11 @@ def render_latex(root, options, width):
         Use :py:func:`text_from_c` to convert value returned
         by this function into text.
 
+    .. warning::
+
+        Returned C string must be freed, use `free` parameter
+        of :py:func:`text_from_c` for that.
+
     Parameters
     ----------
     root
@@ -925,8 +955,20 @@ def text_to_c(text):
     return text.encode(ENCODING)
 
 
-def text_from_c(c_string):
-    """Convert C string (e.g. returned from C function) to text."""
+def text_from_c(c_string, free=False):
+    """Convert C string (e.g. returned from C function) to text.
+
+    Parameters
+    ----------
+    c_string
+        C string.
+    free: bool
+        Should `c_string` be freed?
+
+    """
     if c_string is None:  # convenience for ones not willing to check :)
         return ""
-    return _ffi.string(c_string).decode(ENCODING)
+    text = _ffi.string(c_string).decode(ENCODING)
+    if free:
+        _lib.free(c_string)
+    return text

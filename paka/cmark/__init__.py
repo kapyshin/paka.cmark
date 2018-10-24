@@ -86,7 +86,8 @@ def to_html(text, breaks=False, safe=False, sourcepos=False, smart=False):
         opts |= _lowlevel.OPT_SAFE
     text_bytes = _lowlevel.text_to_c(text)
     return _lowlevel.text_from_c(
-        _lowlevel.markdown_to_html(text_bytes, len(text_bytes), opts))
+        _lowlevel.markdown_to_html(text_bytes, len(text_bytes), opts),
+        free=True)
 
 
 def to_xml(text, sourcepos=False, smart=False):
@@ -113,7 +114,7 @@ def to_xml(text, sourcepos=False, smart=False):
     text_bytes = _lowlevel.text_to_c(text)
     parsed = _lowlevel.parse_document(text_bytes, len(text_bytes), opts)
     root = _ffi.gc(parsed, _lowlevel.node_free)
-    return _lowlevel.text_from_c(_lowlevel.render_xml(root, opts))
+    return _lowlevel.text_from_c(_lowlevel.render_xml(root, opts), free=True)
 
 
 def to_commonmark(text, breaks=False, width=0, smart=False):
@@ -148,7 +149,8 @@ def to_commonmark(text, breaks=False, width=0, smart=False):
     parsed = _lowlevel.parse_document(text_bytes, len(text_bytes), opts)
     root = _ffi.gc(parsed, _lowlevel.node_free)
     return _lowlevel.text_from_c(
-        _lowlevel.render_commonmark(root, opts, width))
+        _lowlevel.render_commonmark(root, opts, width),
+        free=True)
 
 
 def to_man(text, breaks=False, width=0, smart=False):
@@ -183,7 +185,8 @@ def to_man(text, breaks=False, width=0, smart=False):
     parsed = _lowlevel.parse_document(text_bytes, len(text_bytes), opts)
     root = _ffi.gc(parsed, _lowlevel.node_free)
     return _lowlevel.text_from_c(
-        _lowlevel.render_man(root, opts, width))
+        _lowlevel.render_man(root, opts, width),
+        free=True)
 
 
 def to_latex(text, breaks=False, width=0, smart=False):
@@ -217,4 +220,5 @@ def to_latex(text, breaks=False, width=0, smart=False):
     parsed = _lowlevel.parse_document(text_bytes, len(text_bytes), opts)
     root = _ffi.gc(parsed, _lowlevel.node_free)
     return _lowlevel.text_from_c(
-        _lowlevel.render_latex(root, opts, width))
+        _lowlevel.render_latex(root, opts, width),
+        free=True)
