@@ -111,7 +111,7 @@ class ToManTest(unittest.TestCase):
             "\[lq]dialect\nof\nScheme\[rq]\n(functional\nlanguage)..PD 0\n"
             ".P\n.PD\n"
             "Maybe\nit has\nsomething\nto do\nwith\nsyntax\nnot"
-            "\ngetting\non\nbeginner\[cq]s\nway\n:)\n"
+            "\ngetting\non\nbeginner\[cq]s\nway :)\n"
             ".PP\n"
             "Проверка\\-\\-\\-\"test\"\n\\-\\-\ntest.\n")
         width = 7
@@ -158,7 +158,7 @@ class ToManTest(unittest.TestCase):
             "\nRacket,\nwhich\nis\nusually\ncharacterized\nas\n"
             "\[lq]dialect\nof\nScheme\[rq]\n(functional\nlanguage).\n"
             "Maybe\nit has\nsomething\nto do\nwith\nsyntax\nnot"
-            "\ngetting\non\nbeginner\[cq]s\nway\n:)\n"
+            "\ngetting\non\nbeginner\[cq]s\nway :)\n"
             ".PP\n"
             "Проверка\\-\\-\\-\"test\"\n\\-\\-\ntest.\n")
         width = 7

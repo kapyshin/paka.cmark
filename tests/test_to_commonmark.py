@@ -109,7 +109,7 @@ class ToCommonMarkTest(unittest.TestCase):
             "\nRacket,\nwhich\nis\nusually\ncharacterized\nas\n"
             "“dialect\nof\nScheme”\n(functional\nlanguage).\n"
             "Maybe\nit has\nsomething\nto do\nwith\nsyntax\nnot"
-            "\ngetting\non\nbeginner’s\nway\n:)\n\nПроверка---\"test\"\n"
+            "\ngetting\non\nbeginner’s\nway :)\n\nПроверка---\"test\"\n"
             "--\ntest.\n")
         width = 7
         self.check(self.SAMPLE, expected, breaks=True, width=width)

@@ -99,7 +99,7 @@ class ToLatexTest(unittest.TestCase):
             "\nRacket,\nwhich\nis\nusually\ncharacterized\nas\n"
             "``dialect\nof\nScheme''\n(functional\nlanguage).\\\\\n"
             "Maybe\nit has\nsomething\nto do\nwith\nsyntax\nnot"
-            "\ngetting\non\nbeginner's\nway\n:)\n\nПроверка-{}-{}-"
+            "\ngetting\non\nbeginner's\nway :)\n\nПроверка-{}-{}-"
             "\\textquotedbl{}test\\textquotedbl{}\n-{}-\ntest.\n")
         width = 7
         self.check(self.SAMPLE, expected, breaks="hard", width=width)
@@ -140,7 +140,7 @@ class ToLatexTest(unittest.TestCase):
             "\nRacket,\nwhich\nis\nusually\ncharacterized\nas\n"
             "``dialect\nof\nScheme\''\n(functional\nlanguage).\n"
             "Maybe\nit has\nsomething\nto do\nwith\nsyntax\nnot"
-            "\ngetting\non\nbeginner's\nway\n:)\n\nПроверка-{}-{}-"
+            "\ngetting\non\nbeginner's\nway :)\n\nПроверка-{}-{}-"
             "\\textquotedbl{}test\\textquotedbl{}\n-{}-\ntest.\n")
         width = 7
         self.check(self.SAMPLE, expected, breaks=True, width=width)
