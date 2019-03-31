@@ -34,6 +34,10 @@ static bool S_last_line_blank(const cmark_node *node) {
   return (node->flags & CMARK_NODE__LAST_LINE_BLANK) != 0;
 }
 
+static bool S_last_line_checked(const cmark_node *node) {
+  return (node->flags & CMARK_NODE__LAST_LINE_CHECKED) != 0;
+}
+
 static CMARK_INLINE cmark_node_type S_type(const cmark_node *node) {
   return (cmark_node_type)node->type;
 }
@@ -43,6 +47,10 @@ static void S_set_last_line_blank(cmark_node *node, bool is_blank) {
     node->flags |= CMARK_NODE__LAST_LINE_BLANK;
   else
     node->flags &= ~CMARK_NODE__LAST_LINE_BLANK;
+}
+
+static void S_set_last_line_checked(cmark_node *node) {
+  node->flags |= CMARK_NODE__LAST_LINE_CHECKED;
 }
 
 static CMARK_INLINE bool S_is_line_end_char(char c) {
@@ -97,6 +105,7 @@ cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
   parser->column = 0;
   parser->first_nonspace = 0;
   parser->first_nonspace_column = 0;
+  parser->thematic_break_kill_pos = 0;
   parser->indent = 0;
   parser->blank = false;
   parser->partially_consumed_tab = false;
@@ -207,19 +216,17 @@ static void remove_trailing_blank_lines(cmark_strbuf *ln) {
 
 // Check to see if a node ends with a blank line, descending
 // if needed into lists and sublists.
-static bool ends_with_blank_line(cmark_node *node) {
-  cmark_node *cur = node;
-  while (cur != NULL) {
-    if (S_last_line_blank(cur)) {
-      return true;
-    }
-    if (S_type(cur) == CMARK_NODE_LIST || S_type(cur) == CMARK_NODE_ITEM) {
-      cur = cur->last_child;
-    } else {
-      cur = NULL;
-    }
+static bool S_ends_with_blank_line(cmark_node *node) {
+  if (S_last_line_checked(node)) {
+    return(S_last_line_blank(node));
+  } else if ((S_type(node) == CMARK_NODE_LIST ||
+              S_type(node) == CMARK_NODE_ITEM) && node->last_child) {
+    S_set_last_line_checked(node);
+    return(S_ends_with_blank_line(node->last_child));
+  } else {
+    S_set_last_line_checked(node);
+    return (S_last_line_blank(node));
   }
-  return false;
 }
 
 static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
@@ -316,7 +323,8 @@ static cmark_node *finalize(cmark_parser *parser, cmark_node *b) {
       // spaces between them:
       subitem = item->first_child;
       while (subitem) {
-        if (ends_with_blank_line(subitem) && (item->next || subitem->next)) {
+        if ((item->next || subitem->next) &&
+            S_ends_with_blank_line(subitem)) {
           b->as.list.tight = false;
           break;
         }
@@ -605,6 +613,40 @@ static void chop_trailing_hashtags(cmark_chunk *ch) {
   if (n != orig_n && n >= 0 && S_is_space_or_tab(peek_at(ch, n))) {
     ch->len = n;
     cmark_chunk_rtrim(ch);
+  }
+}
+
+// Check for thematic break.  On failure, return 0 and update
+// thematic_break_kill_pos with the index at which the
+// parse fails.  On success, return length of match.
+// "...three or more hyphens, asterisks,
+// or underscores on a line by themselves. If you wish, you may use
+// spaces between the hyphens or asterisks."
+static int S_scan_thematic_break(cmark_parser *parser, cmark_chunk *input,
+                                 bufsize_t offset) {
+  bufsize_t i;
+  char c;
+  char nextc = '\0';
+  int count;
+  i = offset;
+  c = peek_at(input, i);
+  if (!(c == '*' || c == '_' || c == '-')) {
+    parser->thematic_break_kill_pos = i;
+    return 0;
+  }
+  count = 1;
+  while ((nextc = peek_at(input, ++i))) {
+    if (nextc == c) {
+      count++;
+    } else if (nextc != ' ' && nextc != '\t') {
+      break;
+    }
+  }
+  if (count >= 3 && (nextc == '\r' || nextc == '\n')) {
+    return (i - offset) + 1;
+  } else {
+    parser->thematic_break_kill_pos = i;
+    return 0;
   }
 }
 
@@ -941,7 +983,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if (!indented &&
                !(cont_type == CMARK_NODE_PARAGRAPH && !all_matched) &&
-               (matched = scan_thematic_break(input, parser->first_nonspace))) {
+	       (parser->thematic_break_kill_pos <= parser->first_nonspace) &&
+               (matched = S_scan_thematic_break(parser, input, parser->first_nonspace))) {
       // it's only now that we know the line is not part of a setext heading:
       *container = add_child(parser, *container, CMARK_NODE_THEMATIC_BREAK,
                              parser->first_nonspace + 1);
@@ -1164,6 +1207,7 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
   parser->column = 0;
   parser->first_nonspace = 0;
   parser->first_nonspace_column = 0;
+  parser->thematic_break_kill_pos = 0;
   parser->indent = 0;
   parser->blank = false;
   parser->partially_consumed_tab = false;

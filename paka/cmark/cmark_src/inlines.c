@@ -605,7 +605,7 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
   delimiter *opener;
   delimiter *old_closer;
   bool opener_found;
-  int openers_bottom_index;
+  int openers_bottom_index = 0;
   delimiter *openers_bottom[6] = {stack_bottom, stack_bottom, stack_bottom,
                                   stack_bottom, stack_bottom, stack_bottom};
 
@@ -642,7 +642,8 @@ static void process_emphasis(subject *subj, delimiter *stack_bottom) {
           // interior closer of size 2 can't match opener of size 1
           // or of size 1 can't match 2
           if (!(closer->can_open || opener->can_close) ||
-              ((opener->length + closer->length) % 3) != 0) {
+	      closer->length % 3 == 0 ||
+              (opener->length + closer->length) % 3 != 0) {
             opener_found = true;
             break;
           }
@@ -966,7 +967,7 @@ static bufsize_t manual_scan_link_url(cmark_chunk *input, bufsize_t offset,
       } else if (input->data[i] == '\\')
         i += 2;
       else if (input->data[i] == '\n' || input->data[i] == '<')
-        return manual_scan_link_url_2(input, offset, output);
+        return -1;
       else
         ++i;
     }
