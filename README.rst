@@ -9,7 +9,7 @@ paka.cmark
 
 Features
 --------
-- Python 2.7 and 3.5 are supported
+- Python 2.7 and 3.6 are supported
 - PyPy (Python 2.7) is supported, as wrapping is made with CFFI_
 - no need to install ``libcmark``, it is bundled with ``paka.cmark``
   (and sources of the former are regularly updated according to upstream)
