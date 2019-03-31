@@ -25,8 +25,8 @@ OPT_NOBREAKS = _lib.CMARK_OPT_NOBREAKS
 """Render “soft break” nodes as spaces."""
 OPT_SOURCEPOS = _lib.CMARK_OPT_SOURCEPOS
 """Render with “sourcepos” information."""
-OPT_SAFE = _lib.CMARK_OPT_SAFE
-"""Suppress raw HTML and unsafe links while rendering."""
+OPT_UNSAFE = _lib.CMARK_OPT_UNSAFE
+"""Allow raw HTML and unsafe links while rendering."""
 OPT_SMART = _lib.CMARK_OPT_SMART
 """Render straight quotes as curly, ``---`` as em dash, ``--`` as en dash."""
 

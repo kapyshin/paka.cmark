@@ -14,11 +14,12 @@ Features
 - no need to install ``libcmark``, it is bundled with ``paka.cmark``
   (and sources of the former are regularly updated according to upstream)
 - supported output: HTML, XML, CommonMark, man, LaTeX
-- supported options: ``CMARK_OPT_SAFE``, ``CMARK_OPT_NOBREAKS``,
+- supported options: ``CMARK_OPT_UNSAFE``, ``CMARK_OPT_NOBREAKS``,
   ``CMARK_OPT_HARDBREAKS``, ``CMARK_OPT_SOURCEPOS``, ``CMARK_OPT_SMART``
 - unlike ``libcmark``—underlying C library—``paka.cmark`` uses
   ``CMARK_OPT_NOBREAKS`` by default (``breaks`` argument allows to control
   line break rendering)
+- safe HTML output is on by default (like in ``libcmark``)
 
 
 Examples
@@ -31,15 +32,16 @@ Render with ``CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS``:
 
 .. code-block:: pycon
 
-    >>> print(cmark.to_html(u"Hello,\n*World*!"))
-    <p>Hello, <em>World</em>!</p>
+    >>> print(cmark.to_html(u"<p>nope</p>"))
+    <!-- raw HTML omitted -->
 
-Render with ``CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS | CMARK_OPT_SAFE``:
+Render with ``CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS | CMARK_OPT_UNSAFE``:
 
 .. code-block:: pycon
 
-    >>> print(cmark.to_html(u"<p>nope</p>", safe=True))
-    <!-- raw HTML omitted -->
+    >>> print(cmark.to_html(u"Hello,\n*World*!", safe=False))
+    <p>Hello, <em>World</em>!</p>
+
 
 Render with ``CMARK_OPT_DEFAULT``:
 

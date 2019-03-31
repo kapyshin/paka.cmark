@@ -52,7 +52,7 @@ def get_version():
     return _lowlevel.text_from_c(_lowlevel.version_string())
 
 
-def to_html(text, breaks=False, safe=False, sourcepos=False, smart=False):
+def to_html(text, breaks=False, safe=True, sourcepos=False, smart=False):
     r"""Convert markup to HTML.
 
     Parameters
@@ -65,7 +65,7 @@ def to_html(text, breaks=False, safe=False, sourcepos=False, smart=False):
         (``\n``). If ``False`` -- as spaces. If ``"hard"`` or
         :py:attr:`LineBreaks.hard` -- as ``<br />``\ s.
     safe: bool
-        If ``True``, replace raw HTML (that was present in ``text``)
+        When ``True``, replace raw HTML (that was present in ``text``)
         with HTML comment.
     sourcepos: bool
         If ``True``, add ``data-sourcepos`` attribute to block elements
@@ -82,8 +82,8 @@ def to_html(text, breaks=False, safe=False, sourcepos=False, smart=False):
     opts = _add_sourcepos_to_opts(
         sourcepos, _add_breaks_to_opts(breaks, _lowlevel.OPT_DEFAULT))
     opts = _add_smart_to_opts(smart, opts)
-    if safe:
-        opts |= _lowlevel.OPT_SAFE
+    if not safe:
+        opts |= _lowlevel.OPT_UNSAFE
     text_bytes = _lowlevel.text_to_c(text)
     return _lowlevel.text_from_c(
         _lowlevel.markdown_to_html(text_bytes, len(text_bytes), opts),

@@ -19,6 +19,7 @@ class ToHTMLTest(unittest.TestCase):
         self.line_breaks = LineBreaks
 
     def check(self, source, expected, **kwargs):
+        kwargs.setdefault("safe", False)
         self.assertEqual(self.func(source, **kwargs), expected)
 
     def test_empty(self):

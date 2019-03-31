@@ -96,7 +96,7 @@ Options
 .. autodata:: OPT_HARDBREAKS
 .. autodata:: OPT_NOBREAKS
 .. autodata:: OPT_SOURCEPOS
-.. autodata:: OPT_SAFE
+.. autodata:: OPT_UNSAFE
 .. autodata:: OPT_SMART
 
 .. _node_types:
