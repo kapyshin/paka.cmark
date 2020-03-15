@@ -28,6 +28,7 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
       renderer->buffer->size > 0 &&
       cmark_isdigit(renderer->buffer->ptr[renderer->buffer->size - 1]);
   char encoded[ENCODED_SIZE];
+  int options = renderer->options;
 
   needs_escaping =
       c < 0x80 && escape != LITERAL &&
@@ -36,6 +37,10 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
 	 c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
          c == '>' || c == '\\' || c == '`' || c == '!' ||
          (c == '&' && cmark_isalpha(nextc)) || (c == '!' && nextc == '[') ||
+	 ((CMARK_OPT_SMART & options) &&
+	    ((c == '-' && nextc == '-') ||
+	     (c == '.' && nextc == '.') ||
+	     c == '"' || c == '\'')) ||
          (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
           // begin_content doesn't get set to false til we've passed digits
           // at the beginning of line, so...
@@ -114,24 +119,22 @@ static int shortest_unused_backtick_sequence(const char *code) {
 }
 
 static bool is_autolink(cmark_node *node) {
-  cmark_chunk *title;
-  cmark_chunk *url;
+  const unsigned char *title;
+  const unsigned char *url;
   cmark_node *link_text;
-  char *realurl;
-  int realurllen;
 
   if (node->type != CMARK_NODE_LINK) {
     return false;
   }
 
-  url = &node->as.link.url;
-  if (url->len == 0 || scan_scheme(url, 0) == 0) {
+  url = node->as.link.url;
+  if (url == NULL || _scan_scheme(url) == 0) {
     return false;
   }
 
-  title = &node->as.link.title;
+  title = node->as.link.title;
   // if it has a title, we can't treat it as an autolink:
-  if (title->len > 0) {
+  if (title && title[0]) {
     return false;
   }
 
@@ -140,15 +143,11 @@ static bool is_autolink(cmark_node *node) {
     return false;
   }
   cmark_consolidate_text_nodes(link_text);
-  realurl = (char *)url->data;
-  realurllen = url->len;
-  if (strncmp(realurl, "mailto:", 7) == 0) {
-    realurl += 7;
-    realurllen -= 7;
+  if (strncmp((const char *)url, "mailto:", 7) == 0) {
+    url += 7;
   }
-  return (realurllen == link_text->as.literal.len &&
-          strncmp(realurl, (char *)link_text->as.literal.data,
-                  link_text->as.literal.len) == 0);
+  return link_text->data != NULL &&
+         strcmp((const char *)url, (char *)link_text->data) == 0;
 }
 
 // if node is a block node, returns node.
@@ -171,17 +170,18 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   cmark_node *tmp;
   int list_number;
   cmark_delim_type list_delim;
-  int numticks;
+  size_t numticks;
   bool extra_spaces;
-  int i;
+  size_t i;
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   const char *info, *code, *title;
   char fencechar[2] = {'\0', '\0'};
-  size_t info_len, code_len;
+  size_t code_len;
   char listmarker[LISTMARKER_SIZE];
-  char *emph_delim;
+  const char *emph_delim;
   bool first_in_list_item;
   bufsize_t marker_width;
+  bool has_nonspace;
   bool allow_wrap = renderer->width > 0 && !(CMARK_OPT_NOBREAKS & options) &&
                     !(CMARK_OPT_HARDBREAKS & options);
 
@@ -214,8 +214,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_LIST:
-    if (!entering && node->next && (node->next->type == CMARK_NODE_CODE_BLOCK ||
-                                    node->next->type == CMARK_NODE_LIST)) {
+    if (!entering && node->next && (node->next->type == CMARK_NODE_LIST)) {
       // this ensures that a following indented code block or list will be
       // inteprereted correctly.
       CR();
@@ -276,6 +275,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_CODE_BLOCK:
+
     first_in_list_item = node->prev == NULL && node->parent &&
                          node->parent->type == CMARK_NODE_ITEM;
 
@@ -283,38 +283,26 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       BLANKLINE();
     }
     info = cmark_node_get_fence_info(node);
-    info_len = strlen(info);
     fencechar[0] = strchr(info, '`') == NULL ? '`' : '~';
     code = cmark_node_get_literal(node);
     code_len = strlen(code);
-    // use indented form if no info, and code doesn't
-    // begin or end with a blank line, and code isn't
-    // first thing in a list item
-    if (info_len == 0 && (code_len > 2 && !cmark_isspace(code[0]) &&
-                          !(cmark_isspace(code[code_len - 1]) &&
-                            cmark_isspace(code[code_len - 2]))) &&
-        !first_in_list_item) {
-      LIT("    ");
-      cmark_strbuf_puts(renderer->prefix, "    ");
-      OUT(cmark_node_get_literal(node), false, LITERAL);
-      cmark_strbuf_truncate(renderer->prefix, renderer->prefix->size - 4);
-    } else {
-      numticks = longest_backtick_sequence(code) + 1;
-      if (numticks < 3) {
-        numticks = 3;
-      }
-      for (i = 0; i < numticks; i++) {
-        LIT(fencechar);
-      }
-      LIT(" ");
-      OUT(info, false, LITERAL);
-      CR();
-      OUT(cmark_node_get_literal(node), false, LITERAL);
-      CR();
-      for (i = 0; i < numticks; i++) {
-        LIT(fencechar);
-      }
+
+    numticks = longest_backtick_sequence(code) + 1;
+    if (numticks < 3) {
+      numticks = 3;
     }
+    for (i = 0; i < numticks; i++) {
+      LIT(fencechar);
+    }
+    LIT(" ");
+    OUT(info, false, LITERAL);
+    CR();
+    OUT(cmark_node_get_literal(node), false, LITERAL);
+    CR();
+    for (i = 0; i < numticks; i++) {
+      LIT(fencechar);
+    }
+
     BLANKLINE();
     break;
 
@@ -371,9 +359,16 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     code = cmark_node_get_literal(node);
     code_len = strlen(code);
     numticks = shortest_unused_backtick_sequence(code);
+    has_nonspace = false;
+    for (i=0; i < code_len; i++) {
+      if (code[i] != ' ') {
+        has_nonspace = true;
+        break;
+      }
+    }
     extra_spaces = code_len == 0 ||
 	    code[0] == '`' || code[code_len - 1] == '`' ||
-	    code[0] == ' ' || code[code_len - 1] == ' ';
+	    (has_nonspace && code[0] == ' ' && code[code_len - 1] == ' ');
     for (i = 0; i < numticks; i++) {
       LIT("`");
     }
