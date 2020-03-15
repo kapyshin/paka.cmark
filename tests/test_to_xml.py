@@ -58,7 +58,7 @@ class ToXMLTest(unittest.TestCase):
                 <text xml:space="preserve">.</text>
                 <softbreak />
                 <text xml:space="preserve">И другие </text>
-                <link destination="javascript:pwned" title="">
+                <link destination="javascript:pwned">
                   <text xml:space="preserve">штуки</text>
                 </link>
                 <text xml:space="preserve">.</text>
@@ -91,7 +91,7 @@ class ToXMLTest(unittest.TestCase):
                 <text sourcepos="3:28-3:28" xml:space="preserve">.</text>
                 <softbreak />
                 <text sourcepos="4:1-4:16" xml:space="preserve">И другие </text>
-                <link sourcepos="4:17-4:46" destination="javascript:pwned" title="">
+                <link sourcepos="4:17-4:46" destination="javascript:pwned">
                   <text sourcepos="4:18-4:27" xml:space="preserve">штуки</text>
                 </link>
                 <text sourcepos="4:47-4:47" xml:space="preserve">.</text>
@@ -123,7 +123,7 @@ class ToXMLTest(unittest.TestCase):
                 <text xml:space="preserve">.</text>
                 <softbreak />
                 <text xml:space="preserve">И другие </text>
-                <link destination="javascript:pwned" title="">
+                <link destination="javascript:pwned">
                   <text xml:space="preserve">штуки</text>
                 </link>
                 <text xml:space="preserve">.</text>
