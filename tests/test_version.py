@@ -11,4 +11,4 @@ class VersionTest(unittest.TestCase):
         self.func = get_version
 
     def test_version_is_correct(self):
-        self.assertEqual(self.func(), u"0.29.0")
+        self.assertEqual(self.func(), u"0.30.2")
