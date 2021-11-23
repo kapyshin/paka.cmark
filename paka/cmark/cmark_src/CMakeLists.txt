@@ -2,8 +2,8 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.3")
     cmake_policy(SET CMP0063 NEW)
 endif()
 
-set(LIBRARY "libcmark")
-set(STATICLIBRARY "libcmark_static")
+set(LIBRARY "cmark")
+set(STATICLIBRARY "cmark_static")
 set(HEADERS
   cmark.h
   parser.h
@@ -43,15 +43,19 @@ set(LIBRARY_SOURCES
   ${HEADERS}
   )
 
-set(PROGRAM "cmark")
+set(PROGRAM "cmark_exe")
 set(PROGRAM_SOURCES main.c)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
 
+include(GNUInstallDirs)
 include (GenerateExportHeader)
 
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
+cmark_add_compile_options(${PROGRAM})
+set_target_properties(${PROGRAM} PROPERTIES
+  OUTPUT_NAME "cmark")
 
 if (CMARK_STATIC)
   target_link_libraries(${PROGRAM} ${STATICLIBRARY})
@@ -68,6 +72,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
+  cmark_add_compile_options(${LIBRARY})
   set_target_properties(${LIBRARY} PROPERTIES
     MACOSX_RPATH TRUE
     OUTPUT_NAME "cmark"
@@ -80,6 +85,7 @@ if (CMARK_SHARED)
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
+  add_library(cmark::cmark ALIAS ${LIBRARY})
 
   generate_export_header(${LIBRARY}
     BASE_NAME ${PROJECT_NAME})
@@ -89,15 +95,23 @@ endif()
 
 if (CMARK_STATIC)
   add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
+  cmark_add_compile_options(${STATICLIBRARY})
   set_target_properties(${STATICLIBRARY} PROPERTIES
     COMPILE_FLAGS -DCMARK_STATIC_DEFINE
-    OUTPUT_NAME "cmark$<$<BOOL:${MSVC}>:_static>"
     POSITION_INDEPENDENT_CODE ON
     VERSION ${PROJECT_VERSION})
+  if(MSVC)
+    set_target_properties(${STATICLIBRARY} PROPERTIES
+      OUTPUT_NAME cmark_static)
+  else()
+    set_target_properties(${STATICLIBRARY} PROPERTIES
+      OUTPUT_NAME cmark)
+  endif()
   target_include_directories(${STATICLIBRARY} INTERFACE
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
+  add_library(cmark::cmark_static ALIAS ${STATICLIBRARY})
 
   if (NOT CMARK_SHARED)
     generate_export_header(${STATICLIBRARY}
@@ -117,34 +131,52 @@ if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
   include(InstallRequiredSystemLibraries)
 endif()
 
-set(libdir lib${LIB_SUFFIX})
-
 install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
-  EXPORT cmark
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION ${libdir}
-  ARCHIVE DESTINATION ${libdir}
+  EXPORT cmark-targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
 if(CMARK_SHARED OR CMARK_STATIC)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc @ONLY)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
-    DESTINATION ${libdir}/pkgconfig)
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
   install(FILES
     cmark.h
     ${CMAKE_CURRENT_BINARY_DIR}/cmark_export.h
     ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h
-    DESTINATION include
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
 
-  install(EXPORT cmark DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
+  # Include module for fuctions
+  # - 'write_basic_package_version_file'
+  # - 'configure_package_config_file'
+  include(CMakePackageConfigHelpers)
+  # generate cmark-config.cmake and cmark-config-version.cmake files
+  configure_package_config_file(
+    "cmarkConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/cmark-config.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cmark")
+  write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/cmark-config-version.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion)
+  # install config and version file
+  install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/cmark-config.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/generated/cmark-config-version.cmake"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cmark"
+  )
+  # install targets file
+  install(
+    EXPORT "cmark-targets"
+    NAMESPACE "cmark::"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cmark"
+  )
 
-  set(CMARK_TARGETS_FILE ${CMAKE_CURRENT_BINARY_DIR}/cmarkTargets.cmake)
-  configure_file(cmarkConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/cmarkConfig.cmake)
-  export(TARGETS ${CMARK_INSTALL} FILE ${CMARK_TARGETS_FILE})
 endif()
 
 # Feature tests
@@ -165,6 +197,7 @@ CONFIGURE_FILE(
 
 if(CMARK_LIB_FUZZER)
   add_executable(cmark-fuzz ../test/cmark-fuzz.c ${LIBRARY_SOURCES})
+  cmark_add_compile_options(cmark-fuzz)
   target_link_libraries(cmark-fuzz "${CMAKE_LIB_FUZZER_PATH}")
 
   # cmark is written in C but the libFuzzer runtime is written in C++ which

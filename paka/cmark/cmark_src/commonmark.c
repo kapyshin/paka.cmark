@@ -34,13 +34,13 @@ static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
       c < 0x80 && escape != LITERAL &&
       ((escape == NORMAL &&
         (c < 0x20 ||
-	 c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
+         c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
          c == '>' || c == '\\' || c == '`' || c == '!' ||
          (c == '&' && cmark_isalpha(nextc)) || (c == '!' && nextc == '[') ||
-	 ((CMARK_OPT_SMART & options) &&
-	    ((c == '-' && nextc == '-') ||
-	     (c == '.' && nextc == '.') ||
-	     c == '"' || c == '\'')) ||
+         ((CMARK_OPT_SMART & options) &&
+            ((c == '-' && nextc == '-') ||
+             (c == '.' && nextc == '.') ||
+             c == '"' || c == '\'')) ||
          (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
           // begin_content doesn't get set to false til we've passed digits
           // at the beginning of line, so...
@@ -285,7 +285,6 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     info = cmark_node_get_fence_info(node);
     fencechar[0] = strchr(info, '`') == NULL ? '`' : '~';
     code = cmark_node_get_literal(node);
-    code_len = strlen(code);
 
     numticks = longest_backtick_sequence(code) + 1;
     if (numticks < 3) {
@@ -367,8 +366,8 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       }
     }
     extra_spaces = code_len == 0 ||
-	    code[0] == '`' || code[code_len - 1] == '`' ||
-	    (has_nonspace && code[0] == ' ' && code[code_len - 1] == ' ');
+            code[0] == '`' || code[code_len - 1] == '`' ||
+            (has_nonspace && code[0] == ' ' && code[code_len - 1] == ' ');
     for (i = 0; i < numticks; i++) {
       LIT("`");
     }
