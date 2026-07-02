@@ -1,7 +1,5 @@
 paka.cmark
 ==========
-.. image:: https://travis-ci.org/PavloKapyshin/paka.cmark.svg?branch=master
-    :target: https://travis-ci.org/PavloKapyshin/paka.cmark
 
 ``paka.cmark`` is a Python library that wraps subset of cmark_ C library
 (that is one of reference implementations of CommonMark).
