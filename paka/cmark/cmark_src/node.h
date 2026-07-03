@@ -5,10 +5,10 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
-#include "config.h"
 #include "cmark.h"
 #include "buffer.h"
 
@@ -31,7 +31,8 @@ typedef struct {
 } cmark_code;
 
 typedef struct {
-  int level;
+  int internal_offset;
+  int8_t level;
   bool setext;
 } cmark_heading;
 
@@ -49,6 +50,7 @@ enum cmark_node__internal_flags {
   CMARK_NODE__OPEN = (1 << 0),
   CMARK_NODE__LAST_LINE_BLANK = (1 << 1),
   CMARK_NODE__LAST_LINE_CHECKED = (1 << 2),
+  CMARK_NODE__LIST_LAST_LINE_BLANK = (1 << 3),
 };
 
 struct cmark_node {
@@ -69,7 +71,6 @@ struct cmark_node {
   int start_column;
   int end_line;
   int end_column;
-  int internal_offset;
   uint16_t type;
   uint16_t flags;
 

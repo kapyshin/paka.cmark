@@ -9,15 +9,15 @@
 #  ifndef CMARK_EXPORT
 #    ifdef cmark_EXPORTS
         /* We are building this library */
-#      define CMARK_EXPORT __attribute__((visibility("default")))
+#      define CMARK_EXPORT 
 #    else
         /* We are using this library */
-#      define CMARK_EXPORT __attribute__((visibility("default")))
+#      define CMARK_EXPORT 
 #    endif
 #  endif
 
 #  ifndef CMARK_NO_EXPORT
-#    define CMARK_NO_EXPORT __attribute__((visibility("hidden")))
+#    define CMARK_NO_EXPORT 
 #  endif
 #endif
 
@@ -39,4 +39,4 @@
 #  endif
 #endif
 
-#endif
+#endif /* CMARK_EXPORT_H */

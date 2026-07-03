@@ -1,9 +1,9 @@
+#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "cmark_ctype.h"
-#include "config.h"
 #include "node.h"
 #include "parser.h"
 #include "references.h"
@@ -52,6 +52,7 @@ typedef struct bracket {
 #define FLAG_SKIP_HTML_CDATA        (1u << 0)
 #define FLAG_SKIP_HTML_DECLARATION  (1u << 1)
 #define FLAG_SKIP_HTML_PI           (1u << 2)
+#define FLAG_SKIP_HTML_COMMENT      (1u << 3)
 
 typedef struct {
   cmark_mem *mem;
@@ -66,9 +67,10 @@ typedef struct {
   bracket *last_bracket;
   bufsize_t backticks[MAXBACKTICKS + 1];
   bool scanned_for_backticks;
+  bool no_link_openers;
 } subject;
 
-static CMARK_INLINE bool S_is_line_end_char(char c) {
+static inline bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
 }
 
@@ -82,8 +84,8 @@ static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, 
 static bufsize_t subject_find_special_char(subject *subj, int options);
 
 // Create an inline with a literal string value.
-static CMARK_INLINE cmark_node *make_literal(subject *subj, cmark_node_type t,
-                                             int start_column, int end_column) {
+static inline cmark_node *make_literal(subject *subj, cmark_node_type t,
+                                       int start_column, int end_column) {
   cmark_node *e = (cmark_node *)subj->mem->calloc(1, sizeof(*e));
   e->mem = subj->mem;
   e->type = (uint16_t)t;
@@ -95,7 +97,7 @@ static CMARK_INLINE cmark_node *make_literal(subject *subj, cmark_node_type t,
 }
 
 // Create an inline with no value.
-static CMARK_INLINE cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
+static inline cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
   cmark_node *e = (cmark_node *)mem->calloc(1, sizeof(*e));
   e->mem = mem;
   e->type = t;
@@ -177,9 +179,9 @@ static unsigned char *cmark_clean_autolink(cmark_mem *mem, cmark_chunk *url,
   return cmark_strbuf_detach(&buf);
 }
 
-static CMARK_INLINE cmark_node *make_autolink(subject *subj,
-                                              int start_column, int end_column,
-                                              cmark_chunk url, int is_email) {
+static inline cmark_node *make_autolink(subject *subj, int start_column,
+                                        int end_column, cmark_chunk url,
+                                        int is_email) {
   cmark_node *link = make_simple(subj->mem, CMARK_NODE_LINK);
   link->as.link.url = cmark_clean_autolink(subj->mem, &url, is_email);
   link->as.link.title = NULL;
@@ -207,30 +209,31 @@ static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, 
     e->backticks[i] = 0;
   }
   e->scanned_for_backticks = false;
+  e->no_link_openers = true;
 }
 
-static CMARK_INLINE int isbacktick(int c) { return (c == '`'); }
+static inline int isbacktick(int c) { return (c == '`'); }
 
-static CMARK_INLINE unsigned char peek_char(subject *subj) {
+static inline unsigned char peek_char(subject *subj) {
   // NULL bytes should have been stripped out by now.  If they're
   // present, it's a programming error:
   assert(!(subj->pos < subj->input.len && subj->input.data[subj->pos] == 0));
   return (subj->pos < subj->input.len) ? subj->input.data[subj->pos] : 0;
 }
 
-static CMARK_INLINE unsigned char peek_at(subject *subj, bufsize_t pos) {
+static inline unsigned char peek_at(subject *subj, bufsize_t pos) {
   return subj->input.data[pos];
 }
 
 // Return true if there are more characters in the subject.
-static CMARK_INLINE int is_eof(subject *subj) {
+static inline int is_eof(subject *subj) {
   return (subj->pos >= subj->input.len);
 }
 
 // Advance the subject.  Doesn't check for eof.
 #define advance(subj) (subj)->pos += 1
 
-static CMARK_INLINE bool skip_spaces(subject *subj) {
+static inline bool skip_spaces(subject *subj) {
   bool skipped = false;
   while (peek_char(subj) == ' ' || peek_char(subj) == '\t') {
     advance(subj);
@@ -239,7 +242,7 @@ static CMARK_INLINE bool skip_spaces(subject *subj) {
   return skipped;
 }
 
-static CMARK_INLINE bool skip_line_end(subject *subj) {
+static inline bool skip_line_end(subject *subj) {
   bool seen_line_end_char = false;
   if (peek_char(subj) == '\r') {
     advance(subj);
@@ -253,7 +256,7 @@ static CMARK_INLINE bool skip_line_end(subject *subj) {
 }
 
 // Take characters while a predicate holds, and return a string.
-static CMARK_INLINE cmark_chunk take_while(subject *subj, int (*f)(int)) {
+static inline cmark_chunk take_while(subject *subj, int (*f)(int)) {
   unsigned char c;
   bufsize_t startpos = subj->pos;
   bufsize_t len = 0;
@@ -459,18 +462,20 @@ static int scan_delims(subject *subj, unsigned char c, bool *can_open,
     after_char = 10;
   }
   left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
-                  (!cmark_utf8proc_is_punctuation(after_char) ||
+                  (!cmark_utf8proc_is_punctuation_or_symbol(after_char) ||
                    cmark_utf8proc_is_space(before_char) ||
-                   cmark_utf8proc_is_punctuation(before_char));
+                   cmark_utf8proc_is_punctuation_or_symbol(before_char));
   right_flanking = numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
-                   (!cmark_utf8proc_is_punctuation(before_char) ||
+                   (!cmark_utf8proc_is_punctuation_or_symbol(before_char) ||
                     cmark_utf8proc_is_space(after_char) ||
-                    cmark_utf8proc_is_punctuation(after_char));
+                    cmark_utf8proc_is_punctuation_or_symbol(after_char));
   if (c == '_') {
     *can_open = left_flanking &&
-                (!right_flanking || cmark_utf8proc_is_punctuation(before_char));
+                (!right_flanking ||
+                 cmark_utf8proc_is_punctuation_or_symbol(before_char));
     *can_close = right_flanking &&
-                 (!left_flanking || cmark_utf8proc_is_punctuation(after_char));
+                 (!left_flanking ||
+                  cmark_utf8proc_is_punctuation_or_symbol(after_char));
   } else if (c == '\'' || c == '"') {
     *can_open = left_flanking &&
          (!right_flanking || before_char == '(' || before_char == '[') &&
@@ -552,6 +557,9 @@ static void push_bracket(subject *subj, bool image, cmark_node *inl_text) {
   b->position = subj->pos;
   b->bracket_after = false;
   subj->last_bracket = b;
+  if (!image) {
+    subj->no_link_openers = false;
+  }
 }
 
 // Assumes the subject has a c at the current position.
@@ -647,9 +655,11 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
   delimiter *old_closer;
   bool opener_found;
   int openers_bottom_index = 0;
-  bufsize_t openers_bottom[9] = {stack_bottom, stack_bottom, stack_bottom,
-                                 stack_bottom, stack_bottom, stack_bottom,
-                                 stack_bottom, stack_bottom, stack_bottom};
+  bufsize_t openers_bottom[15] = {stack_bottom, stack_bottom, stack_bottom,
+                                  stack_bottom, stack_bottom, stack_bottom,
+                                  stack_bottom, stack_bottom, stack_bottom,
+                                  stack_bottom, stack_bottom, stack_bottom,
+                                  stack_bottom, stack_bottom, stack_bottom};
 
   // move back to first relevant delim.
   candidate = subj->last_delim;
@@ -669,10 +679,11 @@ static void process_emphasis(subject *subj, bufsize_t stack_bottom) {
         openers_bottom_index = 1;
         break;
       case '_':
-        openers_bottom_index = 2;
+        openers_bottom_index = 2 +
+                (closer->can_open ? 3 : 0) + (closer->length % 3);
         break;
       case '*':
-        openers_bottom_index = 3 +
+        openers_bottom_index = 8 +
                 (closer->can_open ? 3 : 0) + (closer->length % 3);
         break;
       default:
@@ -759,8 +770,10 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   closer_num_chars -= use_delims;
   opener_inl->len = opener_num_chars;
   opener_inl->data[opener_num_chars] = 0;
+  opener_inl->end_column -= use_delims;
   closer_inl->len = closer_num_chars;
   closer_inl->data[closer_num_chars] = 0;
+  closer_inl->start_column += use_delims;
 
   // free delimiters between opener and closer
   delim = closer->previous;
@@ -775,18 +788,31 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
   emph = use_delims == 1 ? make_emph(subj->mem) : make_strong(subj->mem);
 
   tmp = opener_inl->next;
-  while (tmp && tmp != closer_inl) {
-    tmpnext = tmp->next;
-    cmark_node_unlink(tmp);
-    append_child(emph, tmp);
-    tmp = tmpnext;
+  if (tmp && tmp != closer_inl) {
+    emph->first_child = tmp;
+    tmp->prev = NULL;
+
+    while (tmp && tmp != closer_inl) {
+      tmpnext = tmp->next;
+      tmp->parent = emph;
+      if (tmpnext == closer_inl) {
+        emph->last_child = tmp;
+        tmp->next = NULL;
+      }
+      tmp = tmpnext;
+    }
   }
-  cmark_node_insert_after(opener_inl, emph);
+
+  opener_inl->next = emph;
+  closer_inl->prev = emph;
+  emph->prev = opener_inl;
+  emph->next = closer_inl;
+  emph->parent = opener_inl->parent;
 
   emph->start_line = opener_inl->start_line;
   emph->end_line = closer_inl->end_line;
-  emph->start_column = opener_inl->start_column;
-  emph->end_column = closer_inl->end_column;
+  emph->start_column = opener_inl->start_column + opener_inl->len;
+  emph->end_column = closer_inl->end_column - closer_inl->len;
 
   // if opener has 0 characters, remove it and its associated inline
   if (opener_num_chars == 0) {
@@ -905,12 +931,25 @@ static cmark_node *handle_pointy_brace(subject *subj, int options) {
   // finally, try to match an html tag
   if (subj->pos + 2 <= subj->input.len) {
     int c = subj->input.data[subj->pos];
-    if (c == '!') {
+    if (c == '!' && (subj->flags & FLAG_SKIP_HTML_COMMENT) == 0) {
       c = subj->input.data[subj->pos+1];
-      if (c == '-') {
-        matchlen = scan_html_comment(&subj->input, subj->pos + 2);
-        if (matchlen > 0)
-          matchlen += 2; // prefix "<-"
+      if (c == '-' && subj->input.data[subj->pos+2] == '-') {
+	if (subj->pos + 3 < subj->input.len &&
+            subj->input.data[subj->pos+3] == '>') {
+	  matchlen = 4;
+	} else if (subj->pos + 4 < subj->input.len &&
+                   subj->input.data[subj->pos+3] == '-' &&
+                   subj->input.data[subj->pos+4] == '>') {
+          matchlen = 5;
+        } else {
+          matchlen = scan_html_comment(&subj->input, subj->pos + 1);
+          if (matchlen > 0) {
+            matchlen += 1; // prefix "<"
+	  } else { // no match through end of input: set a flag so
+		   // we don't reparse looking for -->:
+	    subj->flags |= FLAG_SKIP_HTML_COMMENT;
+	  }
+	}
       } else if (c == '[') {
         if ((subj->flags & FLAG_SKIP_HTML_CDATA) == 0) {
           matchlen = scan_html_cdata(&subj->input, subj->pos + 2);
@@ -1109,15 +1148,15 @@ static cmark_node *handle_close_bracket(subject *subj) {
     return make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("]"));
   }
 
-  if (!opener->active) {
+  // If we got here, we matched a potential link/image text.
+  // Now we check to see if it's a link/image.
+  is_image = opener->image;
+
+  if (!is_image && subj->no_link_openers) {
     // take delimiter off stack
     pop_bracket(subj);
     return make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("]"));
   }
-
-  // If we got here, we matched a potential link/image text.
-  // Now we check to see if it's a link/image.
-  is_image = opener->image;
 
   after_link_text_pos = subj->pos;
 
@@ -1161,7 +1200,7 @@ static cmark_node *handle_close_bracket(subject *subj) {
   found_label = link_label(subj, &raw_label);
   if (!found_label) {
     // If we have a shortcut reference link, back up
-    // to before the spacse we skipped.
+    // to before the spaces we skipped.
     subj->pos = initial_pos;
   }
 
@@ -1214,21 +1253,11 @@ match:
   process_emphasis(subj, opener->position);
   pop_bracket(subj);
 
-  // Now, if we have a link, we also want to deactivate earlier link
-  // delimiters. (This code can be removed if we decide to allow links
+  // Now, if we have a link, we also want to deactivate links until
+  // we get a new opener. (This code can be removed if we decide to allow links
   // inside links.)
   if (!is_image) {
-    opener = subj->last_bracket;
-    while (opener != NULL) {
-      if (!opener->image) {
-        if (!opener->active) {
-          break;
-        } else {
-          opener->active = false;
-        }
-      }
-      opener = opener->previous;
-    }
+    subj->no_link_openers = true;
   }
 
   return NULL;
@@ -1381,9 +1410,11 @@ static int parse_inline(subject *subj, cmark_node *parent, int options) {
 // Parse inlines from parent's string_content, adding as children of parent.
 void cmark_parse_inlines(cmark_mem *mem, cmark_node *parent,
                          cmark_reference_map *refmap, int options) {
+  int internal_offset = parent->type == CMARK_NODE_HEADING ?
+    parent->as.heading.internal_offset : 0;
   subject subj;
   cmark_chunk content = {parent->data, parent->len};
-  subject_from_buf(mem, parent->start_line, parent->start_column - 1 + parent->internal_offset, &subj, &content, refmap);
+  subject_from_buf(mem, parent->start_line, parent->start_column - 1 + internal_offset, &subj, &content, refmap);
   cmark_chunk_rtrim(&subj.input);
 
   while (!is_eof(&subj) && parse_inline(&subj, parent, options))

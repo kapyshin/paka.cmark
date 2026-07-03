@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "config.h"
 #include "cmark.h"
 #include "node.h"
 #include "buffer.h"
@@ -163,7 +163,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_CODE_BLOCK:
     CR();
-    LIT(".IP\n.nf\n\\f[C]\n");
+    LIT(".IP\n.nf\n\\f[CR]\n");
     OUT(cmark_node_get_literal(node), false, NORMAL);
     CR();
     LIT("\\f[]\n.fi");
@@ -223,7 +223,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_CODE:
-    LIT("\\f[C]");
+    LIT("\\f[CR]");
     OUT(cmark_node_get_literal(node), allow_wrap, NORMAL);
     LIT("\\f[]");
     break;

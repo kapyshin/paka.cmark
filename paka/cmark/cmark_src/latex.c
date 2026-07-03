@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "config.h"
 #include "cmark.h"
 #include "node.h"
 #include "buffer.h"
@@ -17,8 +17,8 @@
 #define BLANKLINE() renderer->blankline(renderer)
 #define LIST_NUMBER_STRING_SIZE 20
 
-static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
-                              int32_t c, unsigned char nextc) {
+static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
+                        int32_t c, unsigned char nextc) {
   if (escape == LITERAL) {
     cmark_render_code_point(renderer, c);
     return;
@@ -256,7 +256,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         // latex normally supports only five levels
         if (enumlevel >= 1 && enumlevel <= 5) {
           snprintf(list_number_string, LIST_NUMBER_STRING_SIZE, "%d",
-                   list_number);
+                   list_number - 1); // the next item will increment this
           LIT("\\setcounter{enum");
           switch (enumlevel) {
           case 1: LIT("i"); break;
@@ -409,7 +409,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       case EMAIL_AUTOLINK:
         LIT("\\href{");
         OUT(url, false, URL);
-        LIT("}\\nolinkurl{");
+        LIT("}{\\nolinkurl{");
         break;
       case NORMAL_LINK:
         LIT("\\href{");
@@ -425,6 +425,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
         LIT("{"); // error?
       }
     } else {
+      if (get_link_type(node) == EMAIL_AUTOLINK) {
+        LIT("}"); // Close up \nolinkurl argument
+      }
       LIT("}");
     }
 

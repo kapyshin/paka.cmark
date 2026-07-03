@@ -6,13 +6,13 @@
 #include "node.h"
 #include "cmark_ctype.h"
 
-static CMARK_INLINE void S_cr(cmark_renderer *renderer) {
+static inline void S_cr(cmark_renderer *renderer) {
   if (renderer->need_cr < 1) {
     renderer->need_cr = 1;
   }
 }
 
-static CMARK_INLINE void S_blankline(cmark_renderer *renderer) {
+static inline void S_blankline(cmark_renderer *renderer) {
   if (renderer->need_cr < 2) {
     renderer->need_cr = 2;
   }
@@ -20,7 +20,7 @@ static CMARK_INLINE void S_blankline(cmark_renderer *renderer) {
 
 static void S_out(cmark_renderer *renderer, const char *source, bool wrap,
                   cmark_escaping escape) {
-  int length = strlen(source);
+  int length = (int)strlen(source);
   unsigned char nextc;
   int32_t c;
   int i = 0;
@@ -178,9 +178,11 @@ char *cmark_render(cmark_node *root, int options, int width,
     }
   }
 
-  // ensure final newline
-  if (renderer.buffer->size == 0 || renderer.buffer->ptr[renderer.buffer->size - 1] != '\n') {
-    cmark_strbuf_putc(renderer.buffer, '\n');
+  // If the root node is a block type (i.e. not inline), ensure there's a final newline:
+  if (cmark_node_is_block(root)) {
+    if (renderer.buffer->size == 0 || renderer.buffer->ptr[renderer.buffer->size - 1] != '\n') {
+      cmark_strbuf_putc(renderer.buffer, '\n');
+    }
   }
 
   result = (char *)cmark_strbuf_detach(renderer.buffer);

@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "config.h"
 #include "cmark.h"
 #include "node.h"
 #include "buffer.h"
@@ -74,7 +74,7 @@ static void escape_xml(cmark_strbuf *ob, const unsigned char *src,
 
 static void escape_xml_str(cmark_strbuf *dest, const unsigned char *source) {
   if (source)
-    escape_xml(dest, source, strlen((char *)source));
+    escape_xml(dest, source, (bufsize_t)strlen((char *)source));
 }
 
 struct render_state {
@@ -82,7 +82,7 @@ struct render_state {
   int indent;
 };
 
-static CMARK_INLINE void indent(struct render_state *state) {
+static inline void indent(struct render_state *state) {
   int i;
   for (i = 0; i < state->indent && i < MAX_INDENT; i++) {
     cmark_strbuf_putc(state->xml, ' ');
@@ -134,9 +134,9 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
         cmark_strbuf_puts(xml, buffer);
         delim = cmark_node_get_list_delim(node);
         if (delim == CMARK_PAREN_DELIM) {
-          cmark_strbuf_puts(xml, " delim=\"paren\"");
+          cmark_strbuf_puts(xml, " delimiter=\"paren\"");
         } else if (delim == CMARK_PERIOD_DELIM) {
-          cmark_strbuf_puts(xml, " delim=\"period\"");
+          cmark_strbuf_puts(xml, " delimiter=\"period\"");
         }
         break;
       case CMARK_BULLET_LIST:

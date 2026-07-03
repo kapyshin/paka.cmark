@@ -4,17 +4,28 @@
 
 bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, bufsize_t offset)
 {
-	bufsize_t res;
-	unsigned char *ptr = (unsigned char *)c->data;
+bufsize_t res;
+unsigned char *ptr = (unsigned char *)c->data;
 
         if (ptr == NULL || offset > c->len) {
           return 0;
         } else {
 	  unsigned char lim = ptr[c->len];
 
-	  ptr[c->len] = '\0';
-	  res = scanner(ptr + offset);
-	  ptr[c->len] = lim;
+	  // The re2c scanners are built with yyfill:enable = 0, so they
+	  // require a NUL sentinel at ptr[c->len].  In the common case the
+	  // chunk is backed by a cmark_strbuf which is already NUL-terminated
+	  // at that position, so we avoid the transient write entirely (it
+	  // would otherwise mutate shared backing storage and break both
+	  // const-correctness and reentrancy).  Only when the sentinel is
+	  // missing do we fall back to patching the byte around the call.
+	  if (lim == '\0') {
+	    res = scanner(ptr + offset);
+	  } else {
+	    ptr[c->len] = '\0';
+	    res = scanner(ptr + offset);
+	    ptr[c->len] = lim;
+	  }
         }
 
 	return res;
@@ -27,17 +38,13 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
   re2c:define:YYCTXMARKER = marker;
   re2c:yyfill:enable = 0;
 
-  wordchar = [^\x00-\x20];
-
   spacechar = [ \t\v\f\r\n];
 
   reg_char     = [^\\()\x00-\x20];
 
-  escaped_char = [\\][!"#$%&'()*+,./:;<=>?@[\\\]^_`{|}~-];
-
   tagname = [A-Za-z][A-Za-z0-9-]*;
 
-  blocktagname = 'address'|'article'|'aside'|'base'|'basefont'|'blockquote'|'body'|'caption'|'center'|'col'|'colgroup'|'dd'|'details'|'dialog'|'dir'|'div'|'dl'|'dt'|'fieldset'|'figcaption'|'figure'|'footer'|'form'|'frame'|'frameset'|'h1'|'h2'|'h3'|'h4'|'h5'|'h6'|'head'|'header'|'hr'|'html'|'iframe'|'legend'|'li'|'link'|'main'|'menu'|'menuitem'|'nav'|'noframes'|'ol'|'optgroup'|'option'|'p'|'param'|'section'|'source'|'title'|'summary'|'table'|'tbody'|'td'|'tfoot'|'th'|'thead'|'title'|'tr'|'track'|'ul';
+  blocktagname = 'address'|'article'|'aside'|'base'|'basefont'|'blockquote'|'body'|'caption'|'center'|'col'|'colgroup'|'dd'|'details'|'dialog'|'dir'|'div'|'dl'|'dt'|'fieldset'|'figcaption'|'figure'|'footer'|'form'|'frame'|'frameset'|'h1'|'h2'|'h3'|'h4'|'h5'|'h6'|'head'|'header'|'hr'|'html'|'iframe'|'legend'|'li'|'link'|'main'|'menu'|'menuitem'|'nav'|'noframes'|'ol'|'optgroup'|'option'|'p'|'param'|'section'|'search'|'title'|'summary'|'table'|'tbody'|'td'|'tfoot'|'th'|'thead'|'title'|'tr'|'track'|'ul';
 
   attributename = [a-zA-Z_:][a-zA-Z0-9:._-]*;
 
@@ -54,21 +61,15 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
   opentag = tagname attribute* spacechar* [/]? [>];
   closetag = [/] tagname spacechar* [>];
 
-  htmlcomment = "--->" | ("-" ([-]? [^\x00>-]) ([-]? [^\x00-])* "-->");
+  htmlcomment = "--" ([^\x00-]+ | "-" [^\x00-] | "--" [^\x00>])* "-->";
 
   processinginstruction = ([^?>\x00]+ | [?][^>\x00] | [>])+;
 
-  declaration = [A-Z]+ spacechar+ [^>\x00]*;
+  declaration = [A-Za-z]+ [^>\x00]*;
 
   cdata = "CDATA[" ([^\]\x00]+ | "]" [^\]\x00] | "]]" [^>\x00])*;
 
   htmltag = opentag | closetag;
-
-  in_parens_nosp   = [(] (reg_char|escaped_char|[\\])* [)];
-
-  in_double_quotes = ["] (escaped_char|[^"\x00])* ["];
-  in_single_quotes = ['] (escaped_char|[^'\x00])* ['];
-  in_parens        = [(] (escaped_char|[^)\x00])* [)];
 
   scheme           = [A-Za-z][A-Za-z0-9.+-]{1,31};
 */
@@ -145,6 +146,7 @@ bufsize_t _scan_html_declaration(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
+  (void) marker;
 /*!re2c
   declaration { return (bufsize_t)(p - start); }
   * { return 0; }
@@ -169,10 +171,10 @@ bufsize_t _scan_html_block_start(const unsigned char *p)
   const unsigned char *marker = NULL;
 /*!re2c
   [<] ('script'|'pre'|'textarea'|'style') (spacechar | [>]) { return 1; }
-  '<!--' { return 2; }
-  '<?' { return 3; }
-  '<!' [A-Z] { return 4; }
-  '<![CDATA[' { return 5; }
+  "<!--" { return 2; }
+  "<?" { return 3; }
+  "<!" [A-Za-z] { return 4; }
+  "<![CDATA[" { return 5; }
   [<] [/]? blocktagname (spacechar | [/]? [>])  { return 6; }
   * { return 0; }
 */
@@ -206,7 +208,7 @@ bufsize_t _scan_html_block_end_2(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [^\n\x00]* '-->' { return (bufsize_t)(p - start); }
+  [^\n\x00]* "-->" { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -217,7 +219,7 @@ bufsize_t _scan_html_block_end_3(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [^\n\x00]* '?>' { return (bufsize_t)(p - start); }
+  [^\n\x00]* "?>" { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -228,7 +230,7 @@ bufsize_t _scan_html_block_end_4(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [^\n\x00]* '>' { return (bufsize_t)(p - start); }
+  [^\n\x00]* ">" { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -239,7 +241,7 @@ bufsize_t _scan_html_block_end_5(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  [^\n\x00]* ']]>' { return (bufsize_t)(p - start); }
+  [^\n\x00]* "]]>" { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -252,9 +254,9 @@ bufsize_t _scan_link_title(const unsigned char *p)
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
 /*!re2c
-  ["] (escaped_char|[^"\x00])* ["]   { return (bufsize_t)(p - start); }
-  ['] (escaped_char|[^'\x00])* ['] { return (bufsize_t)(p - start); }
-  [(] (escaped_char|[^()\x00])* [)]  { return (bufsize_t)(p - start); }
+  ["] ([\\][^\x00]|[^"\\\x00])* ["]  { return (bufsize_t)(p - start); }
+  ['] ([\\][^\x00]|[^'\\\x00])* [']  { return (bufsize_t)(p - start); }
+  [(] ([\\][^\x00]|[^()\\\x00])* [)] { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
@@ -312,19 +314,6 @@ bufsize_t _scan_close_code_fence(const unsigned char *p)
 /*!re2c
   [`]{3,} / [ \t]*[\r\n] { return (bufsize_t)(p - start); }
   [~]{3,} / [ \t]*[\r\n] { return (bufsize_t)(p - start); }
-  * { return 0; }
-*/
-}
-
-// Scans an entity.
-// Returns number of chars matched.
-bufsize_t _scan_entity(const unsigned char *p)
-{
-  const unsigned char *marker = NULL;
-  const unsigned char *start = p;
-/*!re2c
-  [&] ([#] ([Xx][A-Fa-f0-9]{1,6}|[0-9]{1,7}) |[A-Za-z][A-Za-z0-9]{1,31} ) [;]
-     { return (bufsize_t)(p - start); }
   * { return 0; }
 */
 }
