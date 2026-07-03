@@ -45,9 +45,6 @@ def main():
 
     build_src_dir = os.path.join(build_dir, "src")
 
-    # Copy config.h from repo/build/src/.
-    copy(build_src_dir, DEST_DIR, filename="config.h")
-
     # Copy cmark_* from repo/build/src/.
     for filename in os.listdir(build_src_dir):
         if filename.startswith("cmark_"):
